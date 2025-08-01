@@ -1,9 +1,8 @@
 import axios from "axios";
 export let baseUrl;
-// baseUrl ="http://109.94.175.198:8081";
-// baseUrl ="http://localhost:8080";
+baseUrl ="http://localhost:8080";
 // baseUrl ="https://ro.bstu.uz";
-baseUrl ="";
+// baseUrl ="";
 export default function (url, method, data, param) {
     let token = localStorage.getItem("access_token");
     // const navigate = useNavigate()
