@@ -1,141 +1,156 @@
-import ColumnsTable from "../tables/components/ColumnsTable";
-import { columnsDataColumns } from "../tables/variables/columnsData";
-import tableDataColumns from "../tables/variables/tableDataColumns.json";
-import ApiCall from "../../../config";
 import React, { useEffect, useState } from "react";
 import Card from "../../../components/card";
+import ApiCall from "../../../config";
 import Rodal from "rodal";
-import "rodal/lib/rodal.css"; // Include Rodal CSS for styling
+import "rodal/lib/rodal.css";
 
-const Marketplace = () => {
-    const [groups, setGroups] = useState([]);
-    const [departments, setDepartments] = useState([]);
-    const [selectedDepartment, setSelectedDepartment] = useState(""); // State for selected department
-    const [show, setShow] = useState(false);
-    const [token, setToken] = useState(""); // State to store token input
+function Marketplace() {
+  const [groups, setGroups] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [show, setShow] = useState(false);
+  const [token, setToken] = useState("");
 
-    useEffect(() => {
-        getDepartments(); // Fetch departments on component mount
-    }, []);
-
-    useEffect(() => {
-        if (selectedDepartment) {
-            getGroupsByDepartment(); // Fetch groups based on selected department
-        } else {
-            setGroups([]); // Clear groups if no department is selected
-        }
-    }, [selectedDepartment]);
-
-    async function getDepartments() {
-        try {
-            const response = await ApiCall(`/api/v1/groups/departments`, "GET");
-            setDepartments(response.data);
-        } catch (error) {
-            console.error("Error fetching department data:", error);
-        }
+  // Fetch departments
+  const getDepartments = async () => {
+    try {
+      const response = await ApiCall(`/api/v1/groups/departments`, "GET");
+      setDepartments(response.data);
+    } catch (error) {
+      console.error("Xatolik (yo'nalishlar):", error);
     }
+  };
 
-    async function getGroupsByDepartment() {
-        try {
-            const response = await ApiCall(`/api/v1/groups/department/${selectedDepartment}`, "GET");
-            setGroups(response.data);
-        } catch (error) {
-            console.error("Error fetching group data:", error);
-        }
+  // Fetch groups
+  const getGroups = async () => {
+    try {
+      const response = await ApiCall(`/api/v1/groups`, "GET");
+      console.log("Fetched groups:", response.data);
+
+      setGroups(response.data);
+    } catch (error) {
+      console.error("Xatolik (guruhlar):", error);
     }
+  };
+  const getGroupsFromHemis = async () => {
+    try {
+      const response = await ApiCall(`/api/v1/groups/update`, "GET");
+      console.log("Fetched groups from hemis:", response.data);
 
-    async function saveGroup() {
-        setShow(false); // Close modal after saving
-        await getDepartments();
-
-        try {
-            const response = await ApiCall(`/api/v1/groups/${token}`, "POST");
-            console.log("Group saved successfully:", response.data);
-           // Fetch updated groups after saving
-            setShow(false); // Close modal after saving
-        } catch (error) {
-            setGroups([])
-            console.error("Error saving group:", error);
-        }
+      setGroups(response.data);
+    } catch (error) {
+      console.error("Xatolik (guruhlar):", error);
     }
+  };
 
-    return (
-        <>
-            <div className="mt-3 grid h-full grid-cols-1 gap-5 xl:grid-cols-2 2xl:grid-cols-3">
-                <div className="col-span-1 h-fit w-full xl:col-span-1 2xl:col-span-2">
-                    <div className="mt-5 grid h-full grid-cols-1 gap-5 md:grid-cols-2">
-                        <div className="mt-5 grid h-full grid-cols-4 gap-5 md:grid-cols-3">
-                            {/* Dropdown for selecting department */}
-                            <div className="mb-4">
-                                <label className="block mb-2">Yo'nalishlar:</label>
-                                <select
-                                    value={selectedDepartment}
-                                    onChange={(e) => setSelectedDepartment(e.target.value)}
-                                    className="w-full border border-gray-300 rounded p-4 pt-2 pb-2"
-                                >
-                                    <option value="">Barchasi</option>
-                                    {departments?.map(department => (
-                                        <option key={department} value={department}>
-                                            {department}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                        <div className="text-end">
-                            <button
-                                onClick={() => setShow(true)}
-                                className="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
-                            >
-                                Guruhlar ro'yxatini yangilash
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  // Fetch on mount
+  useEffect(() => {
+    getDepartments();
+    getGroups();
+    getGroupsFromHemis();
+  }, []);
+  // Filtering
+  const filteredGroups = groups.filter((group) => {
+    const matchesDepartment = selectedDepartment
+      ? group.department.name === selectedDepartment
+      : true;
+    const matchesSearch = searchTerm
+      ? group.name.toLowerCase().includes(searchTerm.toLowerCase())
+      : true;
+    return matchesDepartment && matchesSearch;
+  });
 
-            <div className="mt-5 grid h-full grid-cols-1 gap-5 md:grid-cols-2">
-                {groups?.map((group) => (
-                    <Card key={group.id} extra={"w-full pb-10 p-4 h-full"}>
-                        <div>
-                            <h3 className="font-bold">{group.name}</h3>
-                            <p>Dekanat: {group.department.name}</p>
-                            <p>Yo'nalish: {group.specialty.name}</p>
-                        </div>
-                    </Card>
-                ))}
-            </div>
+  return (
+    <div className="p-6">
+      <h1 className="mb-6 text-center text-3xl font-bold text-blue-600">
+        Guruhlar ro'yxati
+      </h1>
 
-            {/* Modal for entering the token */}
-            <Rodal width={400} height={300} visible={show} onClose={() => setShow(false)}>
-                <h2 className="text-lg font-bold mb-4">Please enter the token</h2>
-                <form
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        saveGroup();
-                    }}
-                >
-                    <div className="mb-4">
-                        <label className="block mb-2">Token:</label>
-                        <input
-                            type="text"
-                            value={token}
-                            onChange={(e) => setToken(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded"
-                            required
-                        />
-                    </div>
+      <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row">
+        {/* Department buttons */}
+        <div className="flex flex-wrap gap-2">
+          <button
+            className={`rounded-lg px-4 py-2 ${
+              !selectedDepartment
+                ? "bg-blue-600 text-white"
+                : "text-black bg-gray-200"
+            }`}
+            onClick={() => setSelectedDepartment("")}
+          >
+            Barchasi
+          </button>
+          {departments.map((dept, index) => (
+            <button
+              key={index}
+              className={`rounded-lg px-4 py-2 ${
+                selectedDepartment === dept
+                  ? "bg-blue-600 text-white"
+                  : "text-black bg-gray-200"
+              }`}
+              onClick={() => setSelectedDepartment(dept)}
+            >
+              {dept}
+            </button>
+          ))}
+        </div>
 
-                    <button
-                        type="submit"
-                        className="px-4 py-2 bg-blue-500 text-white rounded"
-                    >
-                        Add
-                    </button>
-                </form>
-            </Rodal>
-        </>
-    );
-};
+        {/* Search */}
+        <div className="relative w-full md:w-1/3">
+          <input
+            type="text"
+            placeholder="🔍 Guruh qidiruvi..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full rounded-xl border border-gray-300 px-4 py-2"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        {/* Token Modal Button */}
+        <button
+          onClick={() => setShow(true)}
+          className="rounded-lg bg-blue-500 px-6 py-2 text-white"
+        >
+          Token orqali guruhlar
+        </button>
+      </div>
+
+      {/* Group Cards */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {filteredGroups.length > 0 ? (
+          filteredGroups.map((group) => (
+            <Card key={group.id} extra="p-4 shadow-md rounded-xl bg-white">
+              <h2 className="text-lg font-bold text-gray-800">{group.name}</h2>
+              <p className="text-gray-600">Dekanat: {group.department.name}</p>
+              <p className="text-gray-600">Yo‘nalish: {group.specialty.name}</p>
+            </Card>
+          ))
+        ) : (
+          <p className="col-span-full text-center text-gray-500">
+            Guruhlar topilmadi.
+          </p>
+        )}
+      </div>
+
+      {/* Bottom Info */}
+      <div className="mt-6 text-center">
+        <p className="text-xl text-gray-700">
+          Topilgan guruhlar:{" "}
+          <span className="font-bold text-blue-600">
+            {filteredGroups.length} ta
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export default Marketplace;
