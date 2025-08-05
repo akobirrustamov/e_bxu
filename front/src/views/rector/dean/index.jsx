@@ -88,7 +88,6 @@ const Admins = () => {
                                 <th>Ism</th>
                                 <th>Phone/Login</th>
                                 <th>Yo'nalishlar</th>
-
                             </tr>
                             </thead>
                             <tbody>

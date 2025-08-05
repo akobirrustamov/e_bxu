@@ -29,7 +29,7 @@ import RectorGroup from "views/rector/subject";
 import RectorCategories from "views/rector/categories"
 import RectorSubCategories from "views/rector/subCategories"
 import RectorDean from "views/rector/dean"
-import RectorProfile from  "views/rector/profile"
+import RectorProfile from "views/rector/profile"
 import RectorAllAppeals from "views/rector/all-appeals"
 import RectorExpired from "views/rector/expiredAppeals/Expired"
 
@@ -40,8 +40,9 @@ import SuperadminGroups from "views/superadmin/subject";
 import SuperAdminCategories from "views/superadmin/categories"
 import SuperAdminSubCategories from "views/superadmin/subCategories"
 import SuperAdminDean from "views/superadmin/dean"
-import SuperAdminProfile from  "views/superadmin/profile"
+import SuperAdminProfile from "views/superadmin/profile"
 import SuperAdminAllAppeals from "views/superadmin/all-appeals"
+import SuperAdminToken from "views/superadmin/token"
 // Auth Imports
 import SignIn from "views/auth/SignIn";
 
@@ -272,7 +273,7 @@ const routes = [
     icon: <MdOutlineSettings className="h-6 w-6" />,
     component: <DeanDuty />,
   },
-{
+  {
     name: "Profile",
     layout: "/dean",
     path: "profile",
@@ -295,13 +296,13 @@ const routes = [
     icon: <MdHome className="h-6 w-6" />,
     component: <MainDashboardSuper />,
   },
-  {
-    name: "Muddati o'tgan arizalar",
-    layout: "/superadmin",
-    path: "expired",
-    icon: <MdErrorOutline className="h-6 w-6" />,
-    component: <Expired />,
-  },
+  // {
+  //   name: "Muddati o'tgan arizalar",
+  //   layout: "/superadmin",
+  //   path: "expired",
+  //   icon: <MdErrorOutline className="h-6 w-6" />,
+  //   component: <Expired />,
+  // },
   {
     name: "Adminlar",
     layout: "/superadmin",
@@ -310,21 +311,15 @@ const routes = [
     component: <SuperadminAdmins />,
   },
   {
-    name: "Mas'ullar",
+    name: "O'qituvchilar",
     layout: "/superadmin",
     path: "Masullar",
     icon: <MdPerson className="h-6 w-6" />,
     component: <SuperAdminDean />,
   },
-  // {
-  //   name: "Guruhlar",
-  //   layout: "/superadmin",
-  //   path: "groups",
-  //   icon: <MdCastForEducation className="h-6 w-6" />,
-  //   component: <SuperadminGroups />,
-  // },
+
   {
-    name: "Kategoriyalar",
+    name: "O'quv rejalar ro'yxati",
     layout: "/superadmin",
     path: "categories",
     icon: <MdArticle className="h-6 w-6" />,
@@ -339,18 +334,32 @@ const routes = [
   // },
 
   {
-    name: "Xizmat turlari",
+    name: "Fanlar",
     layout: "/superadmin",
     path: "subcategories",
     icon: <MdAutoAwesomeMotion className="h-6 w-6" />,
     component: <SuperAdminSubCategories />,
   },
   {
-    name: "Barcha arizalar",
+    name: "Guruhlar",
+    layout: "/superadmin",
+    path: "groups",
+    icon: <MdCastForEducation className="h-6 w-6" />,
+    component: <SuperadminGroups />,
+  },
+  {
+    name: "Talabalar",
     layout: "/superadmin",
     path: "appeals",
     icon: <MdArticle className="h-6 w-6" />,
     component: <SuperAdminAllAppeals />,
+  },
+    {
+    name: "Token",
+    layout: "/superadmin",
+    path: "token",
+    icon: <MdArticle className="h-6 w-6" />,
+    component: <SuperAdminToken />,
   },
   {
     name: "Profile",
