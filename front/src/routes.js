@@ -295,13 +295,13 @@ const routes = [
     icon: <MdHome className="h-6 w-6" />,
     component: <MainDashboardSuper />,
   },
-  {
-    name: "Muddati o'tgan arizalar",
-    layout: "/superadmin",
-    path: "expired",
-    icon: <MdErrorOutline className="h-6 w-6" />,
-    component: <Expired />,
-  },
+  // {
+  //   name: "Muddati o'tgan arizalar",
+  //   layout: "/superadmin",
+  //   path: "expired",
+  //   icon: <MdErrorOutline className="h-6 w-6" />,
+  //   component: <Expired />,
+  // },
   {
     name: "Adminlar",
     layout: "/superadmin",
