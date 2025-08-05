@@ -22,6 +22,7 @@ public class SubjectExamTypes {
     private Integer hemisId;
     private Integer max_ball;
     private String  examType;
-    private LocalDateTime createdAt;
+    private LocalDateTime created;
+
 
 }

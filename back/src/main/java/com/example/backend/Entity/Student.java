@@ -29,6 +29,7 @@ public class Student {
     private String passport_pin;
     @CreationTimestamp
     private LocalDateTime updated_at;
+    private LocalDateTime created;
 
 
     public Student(String first_name, String second_name, String image, String group, String level, String passport_pin) {
