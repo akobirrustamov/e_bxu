@@ -12,21 +12,21 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table(name = "subjects")
+@Table(name = "department")
 @Entity
 @Builder
-public class Subject {
+public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
     private Integer hemisId;
-    private String code;
     private String name;
+    private String code;
+    private String structureType;
+    private String localityType;
+    private Integer parent;
     private Boolean active;
-    private String subjectGroupCode;
-    private String subjectGroupName;
-    private String educationTypeCode;
-    private String educationTypeName;
+    private LocalDateTime createdAt;
 
-    private LocalDateTime createDate;
+
 }
