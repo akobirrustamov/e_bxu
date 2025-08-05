@@ -3,6 +3,7 @@ package com.example.backend.Controller;
 import com.example.backend.Repository.CurriculumRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,17 +18,23 @@ public class CurriculumController {
 
     private final CurriculumRepo curriculumRepo;
 
+    private final com.example.backend.Service.ExternalApiService externalApiService;
+
     @GetMapping
     public HttpEntity<?> getCurriculum(){
         return new ResponseEntity<>(curriculumRepo.findAll(), HttpStatus.OK);
     }
 
 
-    @GetMapping("/update")
-    public HttpEntity<?> updateCurriculum(){
-
-        return new ResponseEntity<>(curriculumRepo.findAll(), HttpStatus.OK);
-    }
+//    @GetMapping("/update")
+//    public HttpEntity<?> updateCurriculum(){
+//
+//
+//        String endPoint = "v1/data/curriculum/-subject-list";
+//        HttpMethod method = HttpEntity.class("Get")
+//        externalApiService.sendRequest(endPoint, method, )
+//
+//    }
 
 
 

@@ -19,6 +19,7 @@ public class SubjectExamTypes {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+    @Column(unique = true)
     private Integer hemisId;
     private Integer max_ball;
     private String  examType;

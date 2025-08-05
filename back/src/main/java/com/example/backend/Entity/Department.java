@@ -19,6 +19,7 @@ public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+    @Column(unique = true)
     private Integer hemisId;
     private String name;
     private String code;

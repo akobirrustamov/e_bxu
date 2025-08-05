@@ -18,6 +18,7 @@ import java.util.UUID;
 public class Subject {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(unique = true)
     private UUID id;
     private Integer hemisId;
     private String code;
