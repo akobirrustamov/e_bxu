@@ -3,10 +3,11 @@ import ApiCall from "../../../config";
 import Rodal from "rodal";
 import "rodal/lib/rodal.css";
 import Card from "../../../components/card";
-import { MdDelete, MdModeEditOutline } from "react-icons/md";
+import { MdDelete, MdVpnKey } from "react-icons/md";
 import { FiPlus } from "react-icons/fi";
+import { FaClock } from "react-icons/fa";
 
-const index = () => {
+const Index = () => {
   const [tokens, setTokens] = useState([]);
   const [newToken, setNewToken] = useState({
     id: "",
@@ -19,9 +20,11 @@ const index = () => {
   }, []);
 
   const addToken = async () => {
+    console.log("send message");
+
     try {
       const response = await ApiCall(
-        `/api/v1/hemis/${newToken.name}`,
+        `/api/v1/token/hemis/${newToken.name}`,
         "POST",
         null
       );
@@ -35,7 +38,8 @@ const index = () => {
 
   const getTokens = async () => {
     try {
-      const response = await ApiCall(`/api/v1/token/hemis/last`, "GET");
+      const response = await ApiCall(`/api/v1/token/hemis`, "GET");
+      console.log(response.data);
       setTokens(response.data);
     } catch (error) {
       console.error("Error fetching Tokens:", error);
@@ -44,7 +48,7 @@ const index = () => {
 
   const deleteToken = async (id) => {
     try {
-      await ApiCall(`/api/v1/hemis/${id}`, "DELETE");
+      await ApiCall(`/api/v1/token/hemis/${id}`, "DELETE");
       await getTokens();
     } catch (error) {
       console.error("Error deleting admin:", error);
@@ -52,17 +56,32 @@ const index = () => {
   };
 
   const handleDeleteClick = (id) => {
-    if (window.confirm("Are you sure you want to delete this admin?")) {
+    if (window.confirm("Haqiqatan ham bu tokenni o'chirmoqchimisiz?")) {
       deleteToken(id);
     }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Noma'lum";
+    const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
+    return new Date(dateString).toLocaleDateString("uz-UZ", options);
   };
 
   return (
     <div className="p-6">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Adminlar boshqaruvi
-        </h1>
+        <div className="flex items-center gap-3">
+          <MdVpnKey className="text-3xl text-blue-600" />
+          <h1 className="text-2xl font-bold text-gray-800">
+            Tokenlar boshqaruvi
+          </h1>
+        </div>
         <button
           onClick={() => {
             setNewToken({ id: "", name: "" });
@@ -79,7 +98,7 @@ const index = () => {
         <div className="overflow-x-auto p-4">
           <table className="w-full min-w-max">
             <thead>
-              <tr className="border-b border-gray-200">
+              <tr className="border-b border-gray-200 bg-gray-50">
                 <th className="py-3 px-4 text-left font-medium text-gray-600">
                   №
                 </th>
@@ -87,7 +106,10 @@ const index = () => {
                   Token
                 </th>
                 <th className="py-3 px-4 text-left font-medium text-gray-600">
-                  Vaqt
+                  <div className="flex items-center gap-2">
+                    <FaClock className="text-gray-500" />
+                    <span>Yaratilgan vaqt</span>
+                  </div>
                 </th>
                 <th className="py-3 px-4 text-right font-medium text-gray-600">
                   Amallar
@@ -102,10 +124,15 @@ const index = () => {
                 >
                   <td className="py-3 px-4 text-gray-700">{index + 1}</td>
                   <td className="py-3 px-4">
-                    <p className="font-medium text-gray-800">{row.name}</p>
+                    <div className="flex items-center gap-2">
+                      <MdVpnKey className="text-blue-500" />
+                      <p className="break-all font-medium text-gray-800">
+                        {row.name || "Noma'lum"}
+                      </p>
+                    </div>
                   </td>
                   <td className="py-3 px-4">
-                    <p className="text-gray-700">{row.phone}</p>
+                    <p className="text-gray-700">{formatDate(row.created)}</p>
                   </td>
                   <td className="flex justify-end gap-4 py-3 px-4">
                     <button
@@ -121,8 +148,9 @@ const index = () => {
             </tbody>
           </table>
           {tokens.length === 0 && (
-            <div className="py-8 text-center text-gray-500">
-              Hech qanday token topilmadi.
+            <div className="py-12 text-center">
+              <MdVpnKey className="mx-auto h-12 w-12 text-gray-400" />
+              <p className="mt-3 text-gray-500">Hech qanday token topilmadi</p>
             </div>
           )}
         </div>
@@ -130,7 +158,7 @@ const index = () => {
 
       <Rodal
         width={500}
-        height="auto"
+        height={300}
         visible={show}
         onClose={() => setShow(false)}
         customStyles={{
@@ -140,13 +168,15 @@ const index = () => {
         }}
       >
         <div className="p-4">
-          <h2 className="mb-6 text-xl font-bold text-gray-800">
-            Yangi token qo'shish
-          </h2>
+          <div className="mb-6 flex items-center gap-3">
+            <MdVpnKey className="text-2xl text-blue-600" />
+            <h2 className="text-xl font-bold text-gray-800">
+              Yangi token qo'shish
+            </h2>
+          </div>
           <form
             onSubmit={(e) => {
               e.preventDefault();
-
               addToken();
             }}
           >
@@ -160,10 +190,13 @@ const index = () => {
                 onChange={(e) => {
                   setNewToken({ ...newToken, name: e.target.value });
                 }}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Ism familya kiriting"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Token matnini kiriting"
                 required
               />
+              <p className="mt-2 text-xs text-gray-500">
+                HEMIS tizimi uchun token matnini kiriting
+              </p>
             </div>
 
             <div className="flex justify-end gap-3">
@@ -188,4 +221,4 @@ const index = () => {
   );
 };
 
-export default index;
+export default Index;

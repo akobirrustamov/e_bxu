@@ -19,6 +19,7 @@ public class SubjectDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+    @Column(unique = true)
     private Integer hemisId;
     private String trainingType;
     private Integer academic_load;
