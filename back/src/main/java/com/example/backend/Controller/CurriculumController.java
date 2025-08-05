@@ -1,6 +1,9 @@
 package com.example.backend.Controller;
 
+import com.example.backend.Repository.CurriculumRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,12 +15,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class CurriculumController {
 
-//    private final
-//
-//    @GetMapping
-//    public ResponseEntity getCurriculum(){
-//
-//    }
+    private final CurriculumRepo curriculumRepo;
+
+    @GetMapping
+    public HttpEntity<?> getCurriculum(){
+        return new ResponseEntity<>(curriculumRepo.findAll(), HttpStatus.OK);
+    }
+
+
+    @GetMapping("/update")
+    public HttpEntity<?> updateCurriculum(){
+
+        return new ResponseEntity<>(curriculumRepo.findAll(), HttpStatus.OK);
+    }
 
 
 
