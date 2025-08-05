@@ -22,6 +22,7 @@ public class SubjectDetails {
     private Integer hemisId;
     private String trainingType;
     private Integer academic_load;
-    private LocalDateTime createdAt;
+    private LocalDateTime created;
+
 
 }

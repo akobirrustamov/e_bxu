@@ -27,5 +27,7 @@ public class Subject {
     private String subjectGroupName;
     private String educationTypeCode;
     private String educationTypeName;
-    private LocalDateTime createDate;
+
+    private LocalDateTime created;
+
 }

@@ -33,18 +33,18 @@ public class Curriculum {
     @ManyToMany
     private List<Department> departments;
 
-    private Integer curriculum;
+    private Integer _curriculum;
     private Integer totalAcload;
     private Integer resourceCount;
     private String in_group;
     private Boolean atSemester;
     private Boolean active;
     private Integer credit;
-    private Timestamp created_at;
-    private Timestamp updated_at;
+    private Long created_at;
+    private Long updated_at;
 
 
-    private LocalDateTime createdAt;
+    private LocalDateTime created;
 
 
 

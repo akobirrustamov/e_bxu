@@ -24,9 +24,7 @@ public class AdminController {
     private final RoleRepo roleRepo;
     private final UserRepo userRepo;
 
-    /**
-     * Add new admin
-     */
+
     @PostMapping
     public HttpEntity<?> addAdmin(@RequestBody UserSave userSave) {
         if (userSave.getName() == null || userSave.getPassword() == null || userSave.getPhone() == null ||
@@ -44,18 +42,14 @@ public class AdminController {
         return ResponseEntity.ok(saved);
     }
 
-    /**
-     * Get all admins
-     */
+
     @GetMapping
     public HttpEntity<?> getAdmins() {
         List<User> allAdminsByRole = userRepo.findAllAdminsByRole();
         return ResponseEntity.ok(allAdminsByRole);
     }
 
-    /**
-     * Update admin by ID
-     */
+
     @PutMapping("/{id}")
     public HttpEntity<?> updateAdmin(@PathVariable UUID id, @RequestBody UserSave userSave) {
         Optional<User> optionalUser = userRepo.findById(id);
@@ -72,9 +66,7 @@ public class AdminController {
         return ResponseEntity.ok(updated);
     }
 
-    /**
-     * Delete admin by ID
-     */
+
     @DeleteMapping("/{id}")
     public HttpEntity<?> deleteAdmin(@PathVariable UUID id) {
         Optional<User> optionalUser = userRepo.findById(id);

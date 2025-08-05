@@ -32,7 +32,7 @@ public class Lesson {
     private Integer trainingType;
     private Long createdAt;
     private Long updatedAt;
-    private LocalDateTime time;
+    private LocalDateTime created;
     private Boolean isMy;
 
 
