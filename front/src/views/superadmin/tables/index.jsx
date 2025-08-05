@@ -164,7 +164,7 @@ const Admins = () => {
 
       <Rodal
         width={500}
-        height="auto"
+        height={430}
         visible={show}
         onClose={() => setShow(false)}
         customStyles={{
