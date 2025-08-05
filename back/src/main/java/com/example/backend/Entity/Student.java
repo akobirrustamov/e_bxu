@@ -20,6 +20,7 @@ import java.util.UUID;
 public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(unique = true)
     private UUID id;
     private String first_name;
     private String second_name;

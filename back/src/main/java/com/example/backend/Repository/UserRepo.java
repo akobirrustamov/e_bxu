@@ -14,6 +14,9 @@ public interface UserRepo extends JpaRepository<User, UUID> {
     @Query(value = "SELECT u.* FROM users u JOIN users_roles ur ON u.id = ur.user_id JOIN role r ON ur.roles_id = r.id WHERE r.name = 'ROLE_ADMIN'", nativeQuery = true)
     List<User> findAllAdminsByRole();
 
+    @Query(value = "SELECT u.* FROM users u JOIN users_roles ur ON u.id = ur.user_id JOIN role r ON ur.roles_id = r.id WHERE r.name = 'ROLE_TEACHER'", nativeQuery = true)
+    List<User> findAllTeachersByRole();
+
     @Query(value = "DELETE FROM users_roles WHERE user_id = :id", nativeQuery = true)
     void deleteRole(UUID id);
 

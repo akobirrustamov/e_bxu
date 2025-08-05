@@ -21,6 +21,7 @@ public class Curriculum {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+    @Column(unique = true)
     private Integer hemisId;
     @ManyToOne
     private Subject subject;
