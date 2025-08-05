@@ -26,7 +26,7 @@ public class Department {
     private String localityType;
     private Integer parent;
     private Boolean active;
-    private LocalDateTime createdAt;
+    private LocalDateTime created;
 
 
 }
