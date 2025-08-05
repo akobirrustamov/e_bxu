@@ -57,6 +57,7 @@ import {
   MdPayment,
   MdCastForEducation,
   MdPersonalInjury,
+  MdGroups,
   MdOutlineSubject,
   MdSubject,
   MdWallpaper,
@@ -124,6 +125,7 @@ import {
   MdMiscellaneousServices,
   MdOutlineSettingsSuggest,
   MdPhotoFilter, MdPersonalVideo, MdErrorOutline,
+
 } from "react-icons/md";
 import Categories from "./views/superadmin/categories";
 import StatusAppeal from "./views/student/appeals/StatusAppeal";
@@ -321,7 +323,7 @@ const routes = [
   {
     name: "O'quv rejalar ro'yxati",
     layout: "/superadmin",
-    path: "categories",
+    path: "curriculum",
     icon: <MdArticle className="h-6 w-6" />,
     component: <SuperAdminCategories />,
   },
@@ -336,7 +338,7 @@ const routes = [
   {
     name: "Fanlar",
     layout: "/superadmin",
-    path: "subcategories",
+    path: "subjects",
     icon: <MdAutoAwesomeMotion className="h-6 w-6" />,
     component: <SuperAdminSubCategories />,
   },
@@ -344,17 +346,17 @@ const routes = [
     name: "Guruhlar",
     layout: "/superadmin",
     path: "groups",
-    icon: <MdCastForEducation className="h-6 w-6" />,
+    icon: <MdGroups className="h-6 w-6" />,
     component: <SuperadminGroups />,
   },
   {
     name: "Talabalar",
     layout: "/superadmin",
-    path: "appeals",
-    icon: <MdArticle className="h-6 w-6" />,
+    path: "students",
+    icon: <MdPerson className="h-6 w-6" />,
     component: <SuperAdminAllAppeals />,
   },
-    {
+  {
     name: "Token",
     layout: "/superadmin",
     path: "token",

@@ -98,7 +98,7 @@ const Index = () => {
         <div className="overflow-x-auto p-4">
           <table className="w-full min-w-max">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
+              <tr className="border-b border-gray-200 ">
                 <th className="py-3 px-4 text-left font-medium text-gray-600">
                   №
                 </th>
