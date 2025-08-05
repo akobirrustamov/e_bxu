@@ -39,7 +39,7 @@ import SuperadminAdmins from "views/superadmin/tables";
 import SuperadminGroups from "views/superadmin/subject";
 import SuperAdminCategories from "views/superadmin/categories"
 import SuperAdminSubCategories from "views/superadmin/subCategories"
-import SuperAdminDean from "views/superadmin/dean"
+import SuperAdminTeacher from "views/superadmin/teacher"
 import SuperAdminProfile from "views/superadmin/profile"
 import SuperAdminAllAppeals from "views/superadmin/all-appeals"
 import SuperAdminToken from "views/superadmin/token"
@@ -313,9 +313,9 @@ const routes = [
   {
     name: "O'qituvchilar",
     layout: "/superadmin",
-    path: "Masullar",
+    path: "teachers",
     icon: <MdPerson className="h-6 w-6" />,
-    component: <SuperAdminDean />,
+    component: <SuperAdminTeacher />,
   },
 
   {
