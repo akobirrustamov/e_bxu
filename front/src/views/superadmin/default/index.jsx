@@ -26,19 +26,19 @@ import Statistics from "../../student/statistics/Statistics";
 const Dashboard = () => {
     const navigate = useNavigate()
     const [statistic, setStatistic] = useState()
-    useEffect(() => {
-        getStatistc()
-    }, []);
-    const getStatistc = async () => {
-        try {
-            const response = await ApiCall("/api/v1/superadmin/statistic", "GET", null);
-            console.log(response.data)
-            setStatistic(response.data)
-        } catch (error) {
-            navigate("/admin/login");
-            console.error("Error fetching account data:", error);
-        }
-    };
+    // useEffect(() => {
+    //     getStatistc()
+    // }, []);
+    // const getStatistc = async () => {
+    //     try {
+    //         const response = await ApiCall("/api/v1/superadmin/statistic", "GET", null);
+    //         console.log(response.data)
+    //         setStatistic(response.data)
+    //     } catch (error) {
+    //         navigate("/admin/login");
+    //         console.error("Error fetching account data:", error);
+    //     }
+    // };
   return (
       <div>
           {/* Card widget */}
