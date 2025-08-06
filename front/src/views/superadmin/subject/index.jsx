@@ -17,8 +17,8 @@ function Groups() {
       setIsUpdating(true);
       await getGroupsFromHemis(); // просто инициирует обновление
       await getGroups(); // получает свежие группы
-      const newResponse = await ApiCall(`/api/v1/groups/1`, "GET"); 
-      console.log(newResponse.data)
+      const newResponse = await ApiCall(`/api/v1/groups/1`, "GET");
+      console.log(newResponse.data);
     } catch (error) {
       console.error("Xatolik (yangilash):", error);
       alert("Guruhlar yangilanmadi. Iltimos, qayta urinib ko‘ring.");
@@ -113,13 +113,15 @@ function Groups() {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {filteredGroups.length > 0 ? (
           filteredGroups.map((group) => (
-            <Card key={group.id} extra="p-4 shadow-md rounded-xl bg-white">
-              <h2 className="text-lg font-bold text-gray-800">{group?.name}</h2>
-              <p className="text-gray-600">
-                <b>Dekanat:</b> {group?.departmentName || "Noma'lum"}
-              </p>
-              <p className="text-gray-600">
-                <b>Yo‘nalish:</b> {group?.specialtyName || "Noma'lum"}
+            <Card
+              key={group.id}
+              extra="group transition duration-200 ease-in-out transform hover:scale-105 hover:bg-blue-500 p-4 cursor-pointer shadow-md rounded-xl bg-white"
+            >
+              <h2 className="text-lg font-bold text-gray-800 group-hover:text-white">
+                {group?.name}
+              </h2>
+              <p className="my-2 text-gray-600 group-hover:text-white">
+                <b>{group?.specialtyName || "Noma'lum"}</b>
               </p>
             </Card>
           ))
