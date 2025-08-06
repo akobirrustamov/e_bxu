@@ -4,62 +4,58 @@ import ApiCall from "../../../config";
 import Rodal from "rodal";
 import "rodal/lib/rodal.css";
 
-function Marketplace() {
+function Groups() {
   const [groups, setGroups] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  const [selectedDepartment, setSelectedDepartment] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [show, setShow] = useState(false);
   const [token, setToken] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  // Fetch departments
-  const getDepartments = async () => {
+  // Обновить группы с сервера
+  const handleUpdateGroups = async () => {
     try {
-      const response = await ApiCall(`/api/v1/groups/departments`, "GET");
-      setDepartments(response.data);
+      setIsUpdating(true);
+      await getGroupsFromHemis(); // просто инициирует обновление
+      await getGroups(); // получает свежие группы
+      const newResponse = await ApiCall(`/api/v1/groups/1`, "GET"); 
+      console.log(newResponse.data)
     } catch (error) {
-      console.error("Xatolik (yo'nalishlar):", error);
+      console.error("Xatolik (yangilash):", error);
+      alert("Guruhlar yangilanmadi. Iltimos, qayta urinib ko‘ring.");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  // Fetch groups
+  // Получить список групп
   const getGroups = async () => {
     try {
       const response = await ApiCall(`/api/v1/groups`, "GET");
       console.log("Fetched groups:", response.data);
-
       setGroups(response.data);
     } catch (error) {
       console.error("Xatolik (guruhlar):", error);
     }
   };
+
+  // Отправить запрос на обновление (не возвращает группы)
   const getGroupsFromHemis = async () => {
     try {
       const response = await ApiCall(`/api/v1/groups/update`, "GET");
-      console.log("Fetched groups from hemis:", response.data);
-
-      setGroups(response.data);
+      console.log("update", response);
     } catch (error) {
-      console.error("Xatolik (guruhlar):", error);
+      console.error("Xatolik (yangilash):", error);
     }
   };
 
-  // Fetch on mount
   useEffect(() => {
-    getDepartments();
     getGroups();
-    getGroupsFromHemis();
   }, []);
-  // Filtering
-  const filteredGroups = groups.filter((group) => {
-    const matchesDepartment = selectedDepartment
-      ? group.department.name === selectedDepartment
-      : true;
-    const matchesSearch = searchTerm
-      ? group.name.toLowerCase().includes(searchTerm.toLowerCase())
-      : true;
-    return matchesDepartment && matchesSearch;
-  });
+
+  // Фильтрация по названию группы
+  const filteredGroups = groups.filter((group) =>
+    group?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="p-6">
@@ -68,34 +64,24 @@ function Marketplace() {
       </h1>
 
       <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row">
-        {/* Department buttons */}
+        {/* Левая часть: кнопка обновления */}
         <div className="flex flex-wrap gap-2">
           <button
-            className={`rounded-lg px-4 py-2 ${
-              !selectedDepartment
-                ? "bg-blue-600 text-white"
-                : "text-black bg-gray-200"
-            }`}
-            onClick={() => setSelectedDepartment("")}
+            onClick={handleUpdateGroups}
+            disabled={isUpdating}
+            className="flex items-center gap-2 rounded-lg bg-green-500 px-6 py-2 text-white disabled:opacity-50"
           >
-            Barchasi
+            {isUpdating ? (
+              <>
+                <span className="animate-spin">🌝</span> Yangilanmoqda...
+              </>
+            ) : (
+              <>🔄 Yangilash</>
+            )}
           </button>
-          {departments.map((dept, index) => (
-            <button
-              key={index}
-              className={`rounded-lg px-4 py-2 ${
-                selectedDepartment === dept
-                  ? "bg-blue-600 text-white"
-                  : "text-black bg-gray-200"
-              }`}
-              onClick={() => setSelectedDepartment(dept)}
-            >
-              {dept}
-            </button>
-          ))}
         </div>
 
-        {/* Search */}
+        {/* Поиск */}
         <div className="relative w-full md:w-1/3">
           <input
             type="text"
@@ -114,7 +100,7 @@ function Marketplace() {
           )}
         </div>
 
-        {/* Token Modal Button */}
+        {/* Token orqali modal ochish */}
         <button
           onClick={() => setShow(true)}
           className="rounded-lg bg-blue-500 px-6 py-2 text-white"
@@ -123,14 +109,18 @@ function Marketplace() {
         </button>
       </div>
 
-      {/* Group Cards */}
+      {/* Карточки групп */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {filteredGroups.length > 0 ? (
           filteredGroups.map((group) => (
             <Card key={group.id} extra="p-4 shadow-md rounded-xl bg-white">
-              <h2 className="text-lg font-bold text-gray-800">{group.name}</h2>
-              <p className="text-gray-600">Dekanat: {group.department.name}</p>
-              <p className="text-gray-600">Yo‘nalish: {group.specialty.name}</p>
+              <h2 className="text-lg font-bold text-gray-800">{group?.name}</h2>
+              <p className="text-gray-600">
+                <b>Dekanat:</b> {group?.departmentName || "Noma'lum"}
+              </p>
+              <p className="text-gray-600">
+                <b>Yo‘nalish:</b> {group?.specialtyName || "Noma'lum"}
+              </p>
             </Card>
           ))
         ) : (
@@ -140,7 +130,7 @@ function Marketplace() {
         )}
       </div>
 
-      {/* Bottom Info */}
+      {/* Итоговое количество */}
       <div className="mt-6 text-center">
         <p className="text-xl text-gray-700">
           Topilgan guruhlar:{" "}
@@ -153,4 +143,4 @@ function Marketplace() {
   );
 }
 
-export default Marketplace;
+export default Groups;
