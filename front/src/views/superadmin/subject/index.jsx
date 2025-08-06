@@ -3,11 +3,12 @@ import Card from "../../../components/card";
 import ApiCall from "../../../config";
 import Rodal from "rodal";
 import "rodal/lib/rodal.css";
+import { useNavigate } from "react-router-dom";
 
 function Groups() {
+  const navigate = useNavigate();
   const [groups, setGroups] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [token, setToken] = useState("");
   const [departments, setDepartments] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState("Sirtqi bo'lim");
   const [isUpdating, setIsUpdating] = useState(false);
@@ -73,6 +74,10 @@ function Groups() {
     .filter((group) =>
       group?.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+  const handleGroupClick = (groupId) => {
+    navigate(`/superadmin/groups/${groupId}`);
+  };
 
   return (
     <div className="min-h-screen p-4">
@@ -232,7 +237,8 @@ function Groups() {
               {filteredGroups.map((group) => (
                 <div
                   key={group.id}
-                  className="group relative transform overflow-hidden rounded-xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                  className="group relative transform cursor-pointer overflow-hidden rounded-xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                  onClick={() => handleGroupClick(group.name)}
                 >
                   <div className="p-6">
                     <h2 className="mb-2 text-xl font-bold text-gray-800 transition-colors group-hover:text-white">
@@ -274,7 +280,7 @@ function Groups() {
         </div>
 
         {/* Results Count */}
-        <div className="rounded-xl bg-white p-4 text-center shadow-sm">
+        <div className="p-4 text-center">
           <p className="text-lg text-gray-700">
             Topilgan guruhlar:{" "}
             <span className="text-2xl font-bold text-blue-600">

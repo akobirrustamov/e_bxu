@@ -28,6 +28,7 @@ const App = () => {
         path="superadmin/subcategories/new"
         element={<AddNewSubCategory />}
       />
+
       <Route
         path="superadmin/subcategories/edit/:id"
         element={<EditNewSubCategory />}

@@ -352,7 +352,7 @@ const routes = [
   {
     name: "Talabalar",
     layout: "/superadmin",
-    path: "groups/students",
+    path: "groups/:groupId",
     icon: <MdPerson className="h-6 w-6" />,
     component: <SuperAdminAllAppeals />,
   },
