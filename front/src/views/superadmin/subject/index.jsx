@@ -7,8 +7,9 @@ import "rodal/lib/rodal.css";
 function Groups() {
   const [groups, setGroups] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [show, setShow] = useState(false);
   const [token, setToken] = useState("");
+  const [departments, setDepartments] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState("Sirtqi bo'lim");
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Обновить группы с сервера
@@ -17,8 +18,8 @@ function Groups() {
       setIsUpdating(true);
       await getGroupsFromHemis(); // просто инициирует обновление
       await getGroups(); // получает свежие группы
-      const newResponse = await ApiCall(`/api/v1/groups/1`, "GET"); 
-      console.log(newResponse.data)
+      const newResponse = await ApiCall(`/api/v1/groups/1`, "GET");
+      console.log(newResponse.data);
     } catch (error) {
       console.error("Xatolik (yangilash):", error);
       alert("Guruhlar yangilanmadi. Iltimos, qayta urinib ko‘ring.");
@@ -29,10 +30,34 @@ function Groups() {
 
   // Получить список групп
   const getGroups = async () => {
+    let AllGroups = [];
+    let page = 1;
+    let hasNextPage = true;
     try {
       const response = await ApiCall(`/api/v1/groups`, "GET");
       console.log("Fetched groups:", response.data);
       setGroups(response.data);
+      if (response.data) {
+        const items = response.data.items;
+        AllGroups = [...AllGroups, ...items];
+
+        hasNextPage = response.data.pagination?.hasNextPage || false;
+        page++;
+      } else {
+        console.error("Failed to fetch groups:", response.message);
+        hasNextPage = false;
+      }
+      const uniqueDepartments = [
+        ...new Set(AllGroups.map((group) => group.departmentName)),
+      ];
+      setDepartments(uniqueDepartments);
+
+      const storedDepartment = localStorage.getItem("selectedDepartment");
+      if (storedDepartment) {
+        setSelectedDepartment(storedDepartment);
+      } else {
+        setSelectedDepartment(uniqueDepartments[0]);
+      }
     } catch (error) {
       console.error("Xatolik (guruhlar):", error);
     }
@@ -62,6 +87,40 @@ function Groups() {
       <h1 className="mb-6 text-center text-3xl font-bold text-blue-600">
         Guruhlar ro'yxati
       </h1>
+      <div className="mt-4 flex items-center justify-center gap-6">
+        <h4 className="flex items-center gap-2 font-medium text-gray-700">
+          {/* Jami bo'limlar */}
+          Jami bo'limlar:{" "}
+          <span className="ml-1 font-semibold text-blue-600">
+            {departments.length}ta
+          </span>
+        </h4>
+        <h4 className="flex items-center gap-2 font-medium text-gray-700">
+          {/* Jami guruhlar */}
+          Jami guruhlar:{" "}
+          <span className="ml-1 font-semibold text-blue-600">
+            {groups.length}ta
+          </span>
+        </h4>
+      </div>
+      <div className="flex w-full flex-wrap items-center justify-between gap-2">
+        {departments.map((dept, index) => (
+          <button
+            key={index}
+            className={`rounded-lg px-6 py-2 transition-all duration-200 hover:scale-105 ${
+              selectedDepartment === dept
+                ? "bg-blue-600 text-white"
+                : "text-black bg-gray-200"
+            }`}
+            onClick={() => {
+              setSelectedDepartment(dept);
+              localStorage.setItem("selectedDepartment", dept);
+            }}
+          >
+            {dept}
+          </button>
+        ))}
+      </div>
 
       <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row">
         {/* Левая часть: кнопка обновления */}
@@ -99,14 +158,6 @@ function Groups() {
             </button>
           )}
         </div>
-
-        {/* Token orqali modal ochish */}
-        <button
-          onClick={() => setShow(true)}
-          className="rounded-lg bg-blue-500 px-6 py-2 text-white"
-        >
-          Token orqali guruhlar
-        </button>
       </div>
 
       {/* Карточки групп */}
