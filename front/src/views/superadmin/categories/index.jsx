@@ -5,9 +5,6 @@ import { useNavigate } from "react-router-dom";
 function CurriculumTable() {
   const navigate = useNavigate();
   const [curriculums, setCurriculums] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [departments, setDepartments] = useState([]);
-  const [selectedDepartment, setSelectedDepartment] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
@@ -39,20 +36,6 @@ function CurriculumTable() {
       setCurriculums(data.content || []);
       setCurrentPage(data.currentPage || 0);
       setTotalPages(data.totalPages || 1);
-
-      // Extract unique departments
-      const uniqueDepartments = [
-        ...new Set(
-          (data.content || []).map(
-            (c) => c.departments?.[0]?.name || "Noma'lum bo'lim"
-          )
-        ),
-      ];
-      setDepartments(uniqueDepartments);
-
-      if (uniqueDepartments.length > 0 && !selectedDepartment) {
-        setSelectedDepartment(uniqueDepartments[0]);
-      }
     } catch (error) {
       console.error("Fetch error:", error);
     } finally {
@@ -72,23 +55,6 @@ function CurriculumTable() {
   useEffect(() => {
     fetchCurriculums();
   }, []);
-
-  // Filter curriculums
-  const filteredCurriculums = curriculums
-    .filter(
-      (curriculum) =>
-        curriculum.departments?.[0]?.name === selectedDepartment ||
-        !selectedDepartment
-    )
-    .filter(
-      (curriculum) =>
-        curriculum.subject?.name
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        curriculum.subject?.code
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase())
-    );
 
   // Handle page change
   const handlePageChange = (newPage) => {
@@ -116,42 +82,14 @@ function CurriculumTable() {
           <div className="rounded-lg bg-white p-4 shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">
-                  Jami Bo'limlar
-                </p>
+                <p className="text-sm font-medium text-gray-500">Jami Fanlar</p>
                 <p className="mt-1 text-2xl font-semibold text-blue-600">
-                  {departments.length}
+                  {curriculums.length}
                 </p>
               </div>
               <div className="rounded-full bg-blue-100 p-3">
                 <svg
                   className="h-6 w-6 text-blue-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-lg bg-white p-4 shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">Jami Fanlar</p>
-                <p className="mt-1 text-2xl font-semibold text-green-600">
-                  {curriculums.length}
-                </p>
-              </div>
-              <div className="rounded-full bg-green-100 p-3">
-                <svg
-                  className="h-6 w-6 text-green-600"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -194,111 +132,40 @@ function CurriculumTable() {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Filters Section */}
-        <div className="mb-6 rounded-lg bg-white p-4 shadow">
-          <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-            {/* Department Filter */}
-            <div className="flex-1">
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Bo'lim
-              </label>
-              <select
-                value={selectedDepartment}
-                onChange={(e) => setSelectedDepartment(e.target.value)}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-              >
-                <option value="">Barcha bo'limlar</option>
-                {departments.map((dept, index) => (
-                  <option key={index} value={dept}>
-                    {dept}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Search Input */}
-            <div className="flex-1">
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Qidiruv
-              </label>
-              <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <svg
-                    className="h-5 w-5 text-gray-400"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Fan nomi yoki kodi..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="block w-full rounded-md border-gray-300 pl-10 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                />
+          {/* Update Button Card */}
+          <div className="rounded-lg bg-white p-4 shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">
+                  Ma'lumotlarni yangilash
+                </p>
+                <button
+                  onClick={handleUpdateCurriculums}
+                  disabled={isUpdating}
+                  className={`border-transparent mt-1 inline-flex items-center rounded-md border px-3 py-1 text-sm font-medium text-white shadow-sm ${
+                    isUpdating
+                      ? "bg-gray-400"
+                      : "bg-green-600 hover:bg-green-700"
+                  } focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
+                >
+                  {isUpdating ? "Yangilanmoqda..." : "Yangilash"}
+                </button>
               </div>
-            </div>
-
-            {/* Update Button */}
-            <div className="flex items-end">
-              <button
-                onClick={handleUpdateCurriculums}
-                disabled={isUpdating}
-                className={`border-transparent inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium text-white shadow-sm ${
-                  isUpdating ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-                } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
-              >
-                {isUpdating ? (
-                  <>
-                    <svg
-                      className="-ml-1 mr-2 h-5 w-5 animate-spin text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Yangilanmoqda...
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="-ml-1 mr-2 h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Yangilash
-                  </>
-                )}
-              </button>
+              <div className="rounded-full bg-green-100 p-3">
+                <svg
+                  className="h-6 w-6 text-green-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
         </div>
@@ -307,8 +174,8 @@ function CurriculumTable() {
         <div className="mb-4 flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-700">
-              <span className="font-medium">{filteredCurriculums.length}</span>{" "}
-              ta natija topildi
+              <span className="font-medium">{curriculums.length}</span> ta
+              natija topildi
             </p>
           </div>
         </div>
@@ -318,7 +185,7 @@ function CurriculumTable() {
           <div className="flex justify-center py-12">
             <div className="border-t-transparent h-12 w-12 animate-spin rounded-full border-4 border-blue-500"></div>
           </div>
-        ) : filteredCurriculums.length > 0 ? (
+        ) : curriculums.length > 0 ? (
           <div className="overflow-hidden rounded-lg shadow">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
@@ -369,7 +236,7 @@ function CurriculumTable() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {filteredCurriculums.map((curriculum) => (
+                  {curriculums.map((curriculum) => (
                     <tr key={curriculum.id} className="hover:bg-gray-50">
                       <td className="whitespace-nowrap px-6 py-4">
                         <div className="text-sm font-medium text-gray-900">
@@ -564,9 +431,8 @@ function CurriculumTable() {
               O'quv rejalar ro'yxati topilmadi!
             </h3>
             <p className="mt-1 text-sm text-gray-500">
-              {searchTerm || selectedDepartment
-                ? "Qidiruvga mos yoki tanlangan bo'limdagi o'quv rejalari mavjud emas"
-                : "Hozircha hech qanday o'quv rejasi mavjud emas. Yangilash tugmasini bosib sinab ko'ring."}
+              Hozircha hech qanday o'quv rejasi mavjud emas. Yangilash tugmasini
+              bosib sinab ko'ring.
             </p>
           </div>
         )}
