@@ -92,7 +92,12 @@ public class DepartmentController {
                             .created(java.time.LocalDateTime.now())
                             .build();
 
-                    departmentRepo.save(department);
+                    try {
+                        departmentRepo.save(department);
+
+                    }catch (Exception e){
+                        System.out.printf("department save error: %s\n", e.getMessage());
+                    }
                     savedCount++;
                 }
 
