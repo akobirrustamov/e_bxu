@@ -1,6 +1,6 @@
 import axios from "axios";
 export let baseUrl;
-baseUrl ="http://localhost:8080";
+baseUrl = "http://localhost:8080";
 // baseUrl ="https://ro.bstu.uz";
 // baseUrl ="";
 export default function (url, method, data, param) {
@@ -8,7 +8,7 @@ export default function (url, method, data, param) {
     // const navigate = useNavigate()
     // console.log(param)
     return axios({
-        url:  baseUrl+ url,
+        url: baseUrl + url,
         method: method,
         data: data,
         headers: {
@@ -26,14 +26,14 @@ export default function (url, method, data, param) {
     }).catch((err) => {
 
         if (err.response.status === 401) {
-            if (localStorage.getItem("refresh_token")===null){
+            if (localStorage.getItem("refresh_token") === null) {
                 return {
                     error: true,
                     data: err.response.status
                 };
             }
             return axios({
-                url: baseUrl+`/api/v1/auth/refresh?refreshToken=${localStorage.getItem("refresh_token")}`,
+                url: baseUrl + `/api/v1/auth/refresh?refreshToken=${localStorage.getItem("refresh_token")}`,
                 method: "POST"
             }).then((res) => {
                 localStorage.setItem("access_token", res.data);
