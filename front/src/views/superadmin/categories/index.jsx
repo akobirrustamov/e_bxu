@@ -71,7 +71,6 @@ function CurriculumTable() {
       );
 
       const data = response.data || {};
-      console.log(data);
       setTotalSubjects(data.totalItems || 0);
       setCurriculums(data.content || []);
       setCurrentPage(data.currentPage || 0);
@@ -372,7 +371,13 @@ function CurriculumTable() {
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
                     {curriculums.map((curriculum) => (
-                      <tr key={curriculum.id} className="hover:bg-gray-50">
+                      <tr
+                        key={curriculum.id}
+                        className="cursor-pointer hover:bg-gray-50"
+                        onClick={() =>
+                          navigate(`/superadmin/curriculum/${curriculum.id}`)
+                        }
+                      >
                         <td className="whitespace-nowrap px-3 py-2 text-sm font-medium text-gray-900">
                           {curriculum.subject?.code || "N/A"}
                         </td>
@@ -388,7 +393,10 @@ function CurriculumTable() {
                         <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500">
                           {curriculum.totalAcload || "N/A"}
                         </td>
-                        <td className="whitespace-nowrap px-3 py-2">
+                        <td
+                          className="whitespace-nowrap px-3 py-2"
+                          onClick={(e) => e.stopPropagation()} // Bu qismni bosganda navigate bo'lmasligi uchun
+                        >
                           <div className="flex flex-wrap gap-1">
                             {curriculum.subjectExamTypes?.map((exam, index) => (
                               <span

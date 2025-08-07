@@ -125,8 +125,8 @@ public class LessonController {
 
 
 
-    @GetMapping("/curriculumId")
-    public HttpEntity<?> getCurriculum(@RequestParam UUID curriculumId) {
+    @GetMapping("/{curriculumId}")
+    public HttpEntity<?> getCurriculum(@PathVariable UUID curriculumId) {
         List<Lesson> lessons = lessonRepo.findByIdCurriculm(curriculumId);
         return ResponseEntity.ok(lessons);
     }
