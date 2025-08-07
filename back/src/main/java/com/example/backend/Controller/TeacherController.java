@@ -9,6 +9,7 @@ import com.example.backend.Repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -25,6 +26,7 @@ public class TeacherController {
     private final RoleRepo roleRepo;
     private final UserRepo userRepo;
 
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping
     public HttpEntity<?> addAdmin(@RequestBody UserSave userSave) {
@@ -37,8 +39,10 @@ public class TeacherController {
         if (adminRole == null) {
             return ResponseEntity.badRequest().body("Admin role not found");
         }
+        String encodedPassword = passwordEncoder.encode(userSave.getPassword());
 
-        User user = new User(userSave.getPhone(), userSave.getPassword(), userSave.getName(), Collections.singletonList(adminRole));
+
+        User user = new User(userSave.getPhone(), encodedPassword, userSave.getName(), Collections.singletonList(adminRole));
         User saved = userRepo.save(user);
         return ResponseEntity.ok(saved);
     }
@@ -61,8 +65,10 @@ public class TeacherController {
         User user = optionalUser.get();
         if (userSave.getName() != null) user.setName(userSave.getName());
         if (userSave.getPhone() != null) user.setPhone(userSave.getPhone());
-        if (userSave.getPassword() != null) user.setPassword(userSave.getPassword());
-
+        if (userSave.getPassword() != null) {
+            String encodedPassword = passwordEncoder.encode(userSave.getPassword());
+            user.setPassword(encodedPassword);
+        }
         User updated = userRepo.save(user);
         return ResponseEntity.ok(updated);
     }

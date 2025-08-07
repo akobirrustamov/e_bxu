@@ -29,7 +29,7 @@ public class GroupsController {
     }
 
     @GetMapping("/{groupId}")
-    public ResponseEntity<?> getGroupById(@PathVariable Integer groupId) {
+    public ResponseEntity<?> getGroupById(@PathVariable UUID groupId) {
         return groupsRepo.findById(groupId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
