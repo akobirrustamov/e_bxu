@@ -115,7 +115,7 @@ function CurriculumTable() {
           </p>
         </div>
 
-        <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Year Selector and Update Button - Combined into the other half */}
           <div className="rounded-lg bg-white p-4 shadow-md md:p-6">
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
@@ -280,109 +280,101 @@ function CurriculumTable() {
           </div>
         ) : curriculums.length > 0 ? (
           <div className="overflow-hidden rounded-lg shadow">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      Fan kodi
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      Fan nomi
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      Bo'lim
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      Kredit
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      Akademik yuk
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      Nazorat turlari
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      Holati
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                  {curriculums.map((curriculum) => (
-                    <tr key={curriculum.id} className="hover:bg-gray-50">
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {curriculum.subject?.code || "N/A"}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {curriculum.subject?.name || "N/A"}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <div className="text-sm text-gray-500">
-                          {curriculum.departments?.[0]?.name || "N/A"}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <div className="text-sm text-gray-500">
-                          {curriculum.credit || "N/A"}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <div className="text-sm text-gray-500">
-                          {curriculum.totalAcload || "N/A"}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <div className="flex flex-wrap gap-1">
-                          {curriculum.subjectExamTypes?.map((exam, index) => (
-                            <span
-                              key={index}
-                              className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800"
-                            >
-                              {exam.examType} ({exam.max_ball})
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                            curriculum.active
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {curriculum.active ? "Faol" : "Nofaol"}
-                        </span>
-                      </td>
+            <div className="overflow-hidden rounded-lg border border-gray-200">
+              <div className="overflow-x-auto">
+                <table className="w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th
+                        scope="col"
+                        className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Fan kodi
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Fan nomi
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Bo'lim
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Kredit
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Akademik yuk
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Nazorat turlari
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Holati
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 bg-white">
+                    {curriculums.map((curriculum) => (
+                      <tr key={curriculum.id} className="hover:bg-gray-50">
+                        <td className="whitespace-nowrap px-3 py-2 text-sm font-medium text-gray-900">
+                          {curriculum.subject?.code || "N/A"}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm font-medium text-gray-900">
+                          {curriculum.subject?.name || "N/A"}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500">
+                          {curriculum.departments?.[0]?.name || "N/A"}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500">
+                          {curriculum.credit || "N/A"}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500">
+                          {curriculum.totalAcload || "N/A"}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2">
+                          <div className="flex flex-wrap gap-1">
+                            {curriculum.subjectExamTypes?.map((exam, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800"
+                              >
+                                {exam.examType} ({exam.max_ball})
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2">
+                          <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                              curriculum.active
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {curriculum.active ? "Faol" : "Nofaol"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {/* Pagination */}
