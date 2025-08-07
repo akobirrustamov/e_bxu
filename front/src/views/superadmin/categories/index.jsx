@@ -107,10 +107,10 @@ function CurriculumTable() {
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-3xl font-bold text-blue-700">
             O'quv Rejalar Ro'yxati
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-xl text-gray-700">
             Barcha fanlar va ularning ma'lumotlari
           </p>
         </div>
