@@ -6,70 +6,37 @@ import { f } from "html2pdf.js";
 function CurriculumTable() {
   const navigate = useNavigate();
   const [curriculums, setCurriculums] = useState([]);
-  const [isUpdating, setIsUpdating] = useState(false);
   const [isUpdating2, setIsUpdating2] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedYear, setSelectedYear] = useState("2024-2025");
   const [totalSubjects, setTotalSubjects] = useState(0);
+  const [subjectName, setSubjectName] = useState("");
 
-  // Generate year options (e.g., 2023-2024, 2024-2025, etc.)
   const yearOptions = [];
   const currentYear = new Date().getFullYear();
-  for (let i = -2; i <= 2; i++) {
+  for (let i = -4; i <= 2; i++) {
     const startYear = currentYear + i;
     const endYear = startYear + 1;
     yearOptions.push(`${startYear}-${endYear}`);
   }
-
-  // Update curriculum data
-  // Update curriculum data for selected year only
-  const handleUpdateCurriculums = async () => {
-    try {
-      setIsUpdating(true);
-
-      // Extract years from selection (e.g., "2024-2025" → 2024 and 2025)
-      const [startYear, endYear] = selectedYear.split("-").map(Number);
-
-      // Create dates for the academic year (September 1 to June 30)
-      const day_from = new Date(startYear, 8, 1).getTime() / 1000; // September 1
-      const day_to = new Date(endYear, 5, 1).getTime() / 1000; // June 30
-
-      // Update only for selected year
-      await ApiCall(
-        `/api/v1/curriculum/update?day_from=${day_from}&day_to=${day_to}&subject_name=${}`,
-        "GET"
-      );
-
-      // Refresh data after update
-      await fetchCurriculums(currentPage);
-    } catch (error) {
-      console.error("Update error:", error);
-      alert(
-        "O'quv rejalar ro'yxati yangilanmadi. Iltimos, qayta urinib ko'ring."
-      );
-    } finally {
-      setIsUpdating(false);
-    }
-  };
   // Fetch curriculum data
   const fetchCurriculums = async (page = 0) => {
     try {
       setIsLoading(true);
-
-      // Extract years from selection (e.g., "2024-2025" → 2024 and 2025)
       const [startYear, endYear] = selectedYear.split("-").map(Number);
-
       // Create dates for the academic year (September 1 to June 30)
-      const day_from = new Date(startYear, 7, 1).getTime() / 1000; // avgust 1
-      const day_to = new Date(endYear, 7).getTime() / 1000; // avgust 1
+      const day_from = new Date(startYear, 7, 1).getTime() / 1000; // August 1, 2024
+      const day_to = new Date(endYear, 7, 1).getTime() / 1000; // August 1, 2025
+      console.log(subjectName);
+      console.log(page);
 
       const response = await ApiCall(
-        `/api/v1/curriculum?page=${page}&day_from=${day_from}&day_to=${day_to}`,
+        `/api/v1/curriculum?page=${page}&day_from=${day_from}&day_to=${day_to}&subject_name=${subjectName}`,
         "GET"
       );
-
+      console.log(response);
       const data = response.data || {};
       setTotalSubjects(data.totalItems || 0);
       setCurriculums(data.content || []);
@@ -100,9 +67,10 @@ function CurriculumTable() {
 
   // Handle page change
   const handlePageChange = (newPage) => {
-    if (newPage >= 0 && newPage < totalPages) {
-      setCurrentPage(newPage);
-      fetchCurriculums(newPage);
+    const pageNumber = Number(newPage); // Ensure it's a number
+    if (pageNumber >= 0 && pageNumber < totalPages) {
+      setCurrentPage(pageNumber);
+      fetchCurriculums(pageNumber);
     }
   };
 
@@ -158,144 +126,159 @@ function CurriculumTable() {
             )}
           </button>
         </div>
-        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Year Selector and Update Button - Combined into the other half */}
-          <div className="rounded-lg bg-white p-4 shadow-md md:p-6">
-            <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
-              {/* O'quv yili tanlovi - Takes half width on desktop */}
-              <div className="w-full md:w-1/2">
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  O'quv yili
-                </label>
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-                >
-                  {yearOptions.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
+        {/* Stats Cards - Combined into one half */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Jami Fanlar card */}
+          <div className="rounded-lg bg-white p-4 shadow transition-all hover:shadow-md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Jami Fanlar</p>
+                <p className="mt-1 text-2xl font-semibold text-blue-600">
+                  {totalSubjects}
+                </p>
               </div>
-
-              {/* Yangilash tugmasi - Takes half width on desktop */}
-              <div className="flex w-full items-center md:w-1/2">
-                <div className="flex w-full items-center space-x-3 rounded-lg bg-green-50 px-4 py-3 md:space-x-4">
-                  <div className="rounded-full bg-green-100 p-2">
-                    <svg
-                      className="h-5 w-5 text-green-600"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <button
-                      onClick={handleUpdateCurriculums}
-                      disabled={isUpdating}
-                      className={`mt-1 w-full whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-white transition-all md:px-4 ${
-                        isUpdating
-                          ? "cursor-not-allowed bg-gray-400"
-                          : "bg-green-600 hover:bg-green-700 hover:shadow-md"
-                      } focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
-                    >
-                      {isUpdating ? (
-                        <>
-                          <svg
-                            className="mr-2 inline h-4 w-4 animate-spin text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            ></path>
-                          </svg>
-                          Yangilanmoqda...
-                        </>
-                      ) : (
-                        "Filtirlash"
-                      )}
-                    </button>
-                  </div>
-                </div>
+              <div className="rounded-full bg-blue-100 p-3">
+                <svg
+                  className="h-6 w-6 text-blue-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  />
+                </svg>
               </div>
             </div>
           </div>
-          {/* Stats Cards - Combined into one half */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* Jami Fanlar card */}
-            <div className="rounded-lg bg-white p-4 shadow transition-all hover:shadow-md">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">
-                    Jami Fanlar
-                  </p>
-                  <p className="mt-1 text-2xl font-semibold text-blue-600">
-                    {totalSubjects}
-                  </p>
-                </div>
-                <div className="rounded-full bg-blue-100 p-3">
-                  <svg
-                    className="h-6 w-6 text-blue-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                    />
-                  </svg>
-                </div>
+
+          {/* Jami Sahifalar card */}
+          <div className="rounded-lg bg-white p-4 shadow transition-all hover:shadow-md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">
+                  Jami Sahifalar
+                </p>
+                <p className="mt-1 text-2xl font-semibold text-purple-600">
+                  {totalPages}
+                </p>
+              </div>
+              <div className="rounded-full bg-purple-100 p-3">
+                <svg
+                  className="h-6 w-6 text-purple-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
               </div>
             </div>
-
-            {/* Jami Sahifalar card */}
-            <div className="rounded-lg bg-white p-4 shadow transition-all hover:shadow-md">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">
-                    Jami Sahifalar
-                  </p>
-                  <p className="mt-1 text-2xl font-semibold text-purple-600">
-                    {totalPages}
-                  </p>
-                </div>
-                <div className="rounded-full bg-purple-100 p-3">
-                  <svg
-                    className="h-6 w-6 text-purple-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+          </div>
+        </div>
+        <div className="mb-6 w-full">
+          {/* Year Selector and Update Button - Combined into the other half */}
+          <div className="w-full">
+            {/* Yangilash tugmasi - Takes half width on desktop */}
+            <div className="rounded-lg bg-white p-4 shadow-md md:p-6">
+              <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+                {/* O'quv yili tanlovi */}
+                <div className="w-full md:w-1/3">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    O'quv yili
+                  </label>
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  </svg>
+                    {yearOptions.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Fan nomi inputi */}
+                <div className="w-full md:w-1/3">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Fan nomi
+                  </label>
+                  <input
+                    type="text"
+                    value={subjectName}
+                    onChange={(e) => setSubjectName(e.target.value)}
+                    placeholder="Fan nomini kiriting"
+                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Filtirlash tugmasi */}
+                <div className="flex w-full items-center md:w-1/3">
+                  <div className="flex w-full items-center space-x-3 rounded-lg bg-green-50 px-4 py-3 md:space-x-4">
+                    <div className="rounded-full bg-green-100 p-2">
+                      <svg
+                        className="h-5 w-5 text-green-600"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <button
+                        onClick={fetchCurriculums}
+                        disabled={isLoading}
+                        className={`mt-1 w-full whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-white transition-all md:px-4 ${
+                          isLoading
+                            ? "cursor-not-allowed bg-gray-400"
+                            : "bg-green-600 hover:bg-green-700 hover:shadow-md"
+                        } focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
+                      >
+                        {isLoading ? (
+                          <>
+                            <svg
+                              className="mr-2 inline h-4 w-4 animate-spin text-white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
+                            </svg>
+                            Yangilanmoqda...
+                          </>
+                        ) : (
+                          "Filtirlash"
+                        )}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
