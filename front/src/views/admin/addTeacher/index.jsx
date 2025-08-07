@@ -73,7 +73,7 @@ const Teachers = () => {
 
   const handleEditClick = async (teacher) => {
     try {
-      const response = await ApiCall("/api/v1/curriculum", "GET");
+      const response = await ApiCall("/api/v1/curriculum/all", "GET");
       console.log("Curriculum response:", response.data);
 
       const curriculumOptions = response.data.map((item) => ({
@@ -194,7 +194,7 @@ const Teachers = () => {
 
       <Rodal
         width={500}
-        height={430}
+        height={510}
         visible={show}
         onClose={() => setShow(false)}
         customStyles={{
