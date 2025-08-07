@@ -39,6 +39,8 @@ function Categories() {
       setIsLoading(true);
       const response = await ApiCall(`/api/v1/curriculum`, "GET");
       const allGroups = response.data || [];
+      console.log("categories", allGroups);
+
       setGroups(allGroups);
 
       const uniqueDepartments = [
@@ -76,11 +78,14 @@ function Categories() {
 
   // Фильтрация по названию группы
   // Фильтрация по названию группы и выбранному отделу
-  const filteredGroups = groups
-    .filter((group) => group.departmentName === selectedDepartment)
-    .filter((group) =>
-      group?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+
+  const filteredGroups = Array.isArray(groups)
+    ? groups
+        .filter((groups) => groups?.structureType === selectedDepartment)
+        .filter((groups) =>
+          groups?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+    : [];
 
   return (
     <div className="min-h-screen p-4">
