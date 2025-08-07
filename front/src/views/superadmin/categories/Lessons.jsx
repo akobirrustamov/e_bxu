@@ -7,8 +7,6 @@ function Lessons() {
   const [lessons, setLessons] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [updateMessage, setUpdateMessage] = useState("");
-  const [error, setError] = useState("");
 
   // Fetch lessons for the curriculum
   const fetchLessons = async () => {
@@ -18,7 +16,6 @@ function Lessons() {
       setLessons(response.data || []);
     } catch (err) {
       console.error("Error fetching lessons:", err);
-      setError("Failed to load lessons");
     } finally {
       setIsLoading(false);
     }
@@ -28,15 +25,10 @@ function Lessons() {
   const updateLessonsFromHemis = async () => {
     try {
       setIsUpdating(true);
-      setUpdateMessage("");
-      setError("");
       const response = await ApiCall(`/api/v1/lessons/update/${id}`, "GET");
-      setUpdateMessage(response.data || "Lessons updated successfully");
-      // Refresh the list after update
       await fetchLessons();
     } catch (err) {
       console.error("Error updating lessons:", err);
-      setError(err.response?.data || "Failed to update lessons");
     } finally {
       setIsUpdating(false);
     }
@@ -46,11 +38,21 @@ function Lessons() {
     fetchLessons();
   }, [id]);
 
+  // Format semester to display (subtract 10 as per your requirement)
+  const formatSemester = (semester) => {
+    return semester ? semester - 10 : "N/A";
+  };
+
   return (
     <div className="min-h-screen p-4">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-800">Darslar Ro'yxati</h1>
+        <div className="mb-6 flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+          <h1 className="text-2xl font-bold text-gray-800">
+            {" "}
+            {lessons[0]?.curriculum?.subject?.name
+              ? lessons[0]?.curriculum?.subject?.name + " " + "fani"
+              : "Fan topilmadi!"}
+          </h1>
           <button
             onClick={updateLessonsFromHemis}
             disabled={isUpdating}
@@ -61,18 +63,6 @@ function Lessons() {
             {isUpdating ? "Yangilanmoqda..." : "HEMISdan yangilash"}
           </button>
         </div>
-
-        {updateMessage && (
-          <div className="mb-4 rounded-lg bg-green-100 p-3 text-green-800">
-            {updateMessage}
-          </div>
-        )}
-
-        {error && (
-          <div className="mb-4 rounded-lg bg-red-100 p-3 text-red-800">
-            {error}
-          </div>
-        )}
 
         {isLoading ? (
           <div className="flex justify-center py-12">
@@ -86,11 +76,15 @@ function Lessons() {
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
                     Nomi
                   </th>
+
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
                     Mavzu yuki
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
                     Semestr
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                    Kafedra
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
                     Holati
@@ -103,11 +97,15 @@ function Lessons() {
                     <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">
                       {lesson.name || "N/A"}
                     </td>
+
                     <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
                       {lesson.topic_load || "N/A"}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
-                      {lesson.semester || "N/A"}
+                      {formatSemester(lesson.semester)}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
+                      {lesson.curriculum?.departments?.[0]?.name || "N/A"}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3">
                       <span
