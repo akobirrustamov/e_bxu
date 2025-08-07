@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import ApiCall from "../../../config";
 import { useNavigate } from "react-router-dom";
+import { f } from "html2pdf.js";
 
 function CurriculumTable() {
   const navigate = useNavigate();
   const [curriculums, setCurriculums] = useState([]);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isUpdating2, setIsUpdating2] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -84,9 +86,12 @@ function CurriculumTable() {
   // Update from HEMIS
   const updateCurriculumsFromHemis = async () => {
     try {
+      setIsUpdating2(true);
       await ApiCall(`/api/v1/curriculum/update`, "GET");
     } catch (error) {
       console.error("Update from HEMIS error:", error);
+    } finally {
+      setIsUpdating2(false);
     }
   };
 
@@ -114,7 +119,46 @@ function CurriculumTable() {
             Barcha fanlar va ularning ma'lumotlari
           </p>
         </div>
-
+        {/* Ma'lumotlarni yangilash tugmasi */}
+        <div className="mb-4 flex justify-end">
+          <button
+            onClick={updateCurriculumsFromHemis}
+            disabled={isUpdating2}
+            className={`relative whitespace-nowrap rounded-lg px-16 py-4 text-sm font-medium text-white transition-all ${
+              isUpdating2
+                ? "cursor-not-allowed bg-blue-600/80" // Semi-transparent when loading
+                : "bg-blue-600 hover:bg-blue-700 hover:shadow-md"
+            } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+          >
+            {isUpdating2 ? (
+              <span className="flex items-center justify-center">
+                <svg
+                  className="mr-2 h-4 w-4 animate-spin text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Yangilanmoqda...
+              </span>
+            ) : (
+              "HEMISdan yangilash"
+            )}
+          </button>
+        </div>
         <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Year Selector and Update Button - Combined into the other half */}
           <div className="rounded-lg bg-white p-4 shadow-md md:p-6">
@@ -155,9 +199,6 @@ function CurriculumTable() {
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-600">
-                      Ma'lumotlarni yangilash
-                    </p>
                     <button
                       onClick={handleUpdateCurriculums}
                       disabled={isUpdating}
@@ -192,7 +233,7 @@ function CurriculumTable() {
                           Yangilanmoqda...
                         </>
                       ) : (
-                        "Yangilash"
+                        "Ma'lumotlarni olish"
                       )}
                     </button>
                   </div>

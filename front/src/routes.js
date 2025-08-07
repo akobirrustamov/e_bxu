@@ -38,7 +38,8 @@ import MainDashboardSuper from "views/superadmin/default";
 import SuperadminAdmins from "views/superadmin/tables";
 import SuperadminGroups from "views/superadmin/subject";
 import SuperAdminFaculty from "views/superadmin/faculty";
-import SuperAdminCategories from "views/superadmin/categories"
+import SuperAdminCategories from "views/superadmin/categories/index"
+import SuperAdminCategoriesLesson from "views/superadmin/categories/Lessons"
 import SuperAdminSubCategories from "views/superadmin/subCategories"
 import SuperAdminTeacher from "views/superadmin/teacher"
 import SuperAdminProfile from "views/superadmin/profile"
@@ -334,6 +335,14 @@ const routes = [
     path: "curriculum",
     icon: <MdArticle className="h-6 w-6" />,
     component: <SuperAdminCategories />,
+  },
+  {
+    name: "O'quv rejalar ro'yxati",
+    layout: "/superadmin",
+    path: "curriculum/:id",
+    icon: <MdArticle className="h-6 w-6" />,
+    component: <SuperAdminCategoriesLesson />,
+    hidden: true
   },
   // {
   //   name: "NewSubcategory",
