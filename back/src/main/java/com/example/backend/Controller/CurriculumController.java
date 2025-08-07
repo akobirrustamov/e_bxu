@@ -25,14 +25,12 @@ public class CurriculumController {
         return new ResponseEntity<>(curriculumRepo.findAll(), HttpStatus.OK);
     }
 
-
+//
 //    @GetMapping("/update")
 //    public HttpEntity<?> updateCurriculum(){
 //
 //
-//        String endPoint = "v1/data/curriculum/-subject-list";
-//        HttpMethod method = HttpEntity.class("Get")
-//        externalApiService.sendRequest(endPoint, method, )
+//
 //
 //    }
 

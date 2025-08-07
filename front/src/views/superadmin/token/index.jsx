@@ -117,7 +117,7 @@ const Index = () => {
               </tr>
             </thead>
             <tbody>
-              {tokens.map((row, index) => (
+              {tokens && tokens?.map((row, index) => (
                 <tr
                   key={index}
                   className="border-b border-gray-100 transition-colors hover:bg-gray-50"

@@ -28,6 +28,7 @@ public class TokenHemisController {
     }
     @GetMapping("/hemis")
     public HttpEntity<?> getAppToken() {
+        System.out.printf("Hemis Token");
         List<TokenHemis> tokenHemis=tokenHemisRepo.findAll();
         return ResponseEntity.ok(tokenHemis);
     }
