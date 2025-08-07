@@ -355,6 +355,7 @@ const routes = [
     path: "groups/:groupId",
     icon: <MdPerson className="h-6 w-6" />,
     component: <SuperAdminAllAppeals />,
+    hidden: true
   },
   {
     name: "Token",

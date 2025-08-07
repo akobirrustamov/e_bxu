@@ -31,7 +31,7 @@ const Sidebar = ({ open, onClose }) => {
 
       <div className="h-screen pb-36">
         <ul className="mb-auto h-full scroll-m-0 overflow-auto overscroll-y-auto  pb-20">
-          <Links routes={routes} />
+          <Links routes={routes.filter((route) => !route.hidden)} />
 
           <Link to={"/"} className={"mt-20"}>
             <div className="relative mb-3 flex hover:cursor-pointer">

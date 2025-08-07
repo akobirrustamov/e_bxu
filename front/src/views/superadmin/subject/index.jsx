@@ -33,7 +33,6 @@ function Groups() {
   const getGroups = async () => {
     try {
       const response = await ApiCall(`/api/v1/groups`, "GET");
-      console.log("Fetched groups:", response.data);
       const allGroups = response.data || [];
       setGroups(allGroups);
 
@@ -238,7 +237,7 @@ function Groups() {
                 <div
                   key={group.id}
                   className="group relative transform cursor-pointer overflow-hidden rounded-xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-                  onClick={() => handleGroupClick(group.name)}
+                  onClick={() => handleGroupClick(group.id)}
                 >
                   <div className="p-6">
                     <h2 className="mb-2 text-xl font-bold text-gray-800 transition-colors group-hover:text-white">
