@@ -4,6 +4,8 @@ import ApiCall from "../../../config";
 import Rodal from "rodal";
 import "rodal/lib/rodal.css";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Groups() {
   const navigate = useNavigate();
@@ -57,17 +59,23 @@ function Groups() {
     try {
       const response = await ApiCall(`/api/v1/groups/update`, "GET");
       console.log("update", response);
+      if (response?.error) {
+        toast.error("❌ Avtorizatsiya xatosi: Token topilmadi yoki noto‘g‘ri.");
+        console.log(response.data);
+        
+      } else {
+        toast.error("❌ Guruhlarni yangilashda xatolik yuz berdi.");
+      }
     } catch (error) {
       console.error("Xatolik (yangilash):", error);
+
+      // Проверка, если ошибка связана с отсутствием токена
     }
   };
 
   useEffect(() => {
     getGroups();
   }, []);
-
-  // Фильтрация по названию группы
-  // Фильтрация по названию группы и выбранному отделу
   const filteredGroups = groups
     .filter((group) => group.departmentName === selectedDepartment)
     .filter((group) =>
@@ -80,6 +88,7 @@ function Groups() {
 
   return (
     <div className="min-h-screen p-4">
+      <ToastContainer />
       <div className="mx-auto max-w-7xl">
         <h1 className="text-center text-4xl font-bold text-blue-700">
           Guruhlar ro'yxati

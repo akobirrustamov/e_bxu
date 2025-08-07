@@ -4,6 +4,8 @@ import ApiCall from "../../../config";
 import Rodal from "rodal";
 import "rodal/lib/rodal.css";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Faculty() {
   const navigate = useNavigate();
@@ -65,6 +67,12 @@ function Faculty() {
     try {
       const response = await ApiCall(`/api/v1/departments/update`, "GET");
       console.log("update", response);
+      if (response?.error) {
+        toast.error("❌ Avtorizatsiya xatosi: Token topilmadi yoki noto‘g‘ri.");
+        console.log(response.data);
+      } else {
+        toast.error("❌ Guruhlarni yangilashda xatolik yuz berdi.");
+      }
     } catch (error) {
       console.error("Xatolik (yangilash):", error);
     }
@@ -90,6 +98,7 @@ function Faculty() {
 
   return (
     <div className="min-h-screen p-4">
+      <ToastContainer/>
       <div className="mx-auto max-w-7xl">
         <h1 className="text-center text-4xl font-bold text-blue-700">
           Fakultetlar ro'yxati
@@ -256,7 +265,8 @@ function Faculty() {
                       {faculty?.name}
                     </h2>
                     <p className="text-gray-600 transition-colors group-hover:text-blue-100">
-                      <b>Fakultet kodi: </b>{faculty?.code || "Noma'lum"}
+                      <b>Fakultet kodi: </b>
+                      {faculty?.code || "Noma'lum"}
                     </p>
                   </div>
                   <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-500 to-blue-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>

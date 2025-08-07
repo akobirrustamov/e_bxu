@@ -8,7 +8,11 @@ import Home from "views/admin/home";
 import DataTables from "views/admin/tables";
 import RTLDefault from "views/rtl/default";
 import Subject from "views/admin/subject"
-import Duty from "views/admin/duty"
+import AdminAddTeacher from "views/admin/addTeacher"
+import AdminSubCategories from "views/admin/subCategories"
+import AdminCategories from "views/admin/categories"
+import AdminGroups from "views/admin/subject"
+
 
 // student imports
 import MainDashboardStudent from "views/student/default";
@@ -50,6 +54,7 @@ import SignIn from "views/auth/SignIn";
 
 // Icon Imports
 import {
+  MdOutlinePersonAddAlt,
   MdHome,
   MdPerson,
   MdLock,
@@ -198,11 +203,32 @@ const routes = [
   },
 
   {
-    name: "Xizmat ko'rsatish",
+    name: "O'qituvchi qo'chish",
     layout: "/admin",
-    path: "duty",
-    icon: <MdOutlineSettings className="h-6 w-6" />,
-    component: <Duty />,
+    path: "add-teacher",
+    icon: <MdOutlinePersonAddAlt className="h-6 w-6" />,
+    component: <AdminAddTeacher />,
+  },
+  {
+    name: "O'quv rejalar ro'yxati",
+    layout: "/admin",
+    path: "curriculum",
+    icon: <MdArticle className="h-6 w-6" />,
+    component: <AdminCategories />,
+  },
+  {
+    name: "Fanlar",
+    layout: "/admin",
+    path: "subjects",
+    icon: <MdAutoAwesomeMotion className="h-6 w-6" />,
+    component: <AdminSubCategories />,
+  },
+  {
+    name: "Guruhlar",
+    layout: "/admin",
+    path: "groups",
+    icon: <MdGroups className="h-6 w-6" />,
+    component: <AdminGroups />,
   },
   {
     name: "Profile",
