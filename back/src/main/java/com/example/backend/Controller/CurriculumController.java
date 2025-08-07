@@ -209,10 +209,12 @@ public class CurriculumController {
 
             org.springframework.data.domain.Page<Curriculum> curriculumPage;
 
+
+
             if (subjectName != null && !subjectName.isBlank()) {
-                curriculumPage = curriculumRepo.findBySubjectNameAndDateBetweenNative(subjectName, pageable);
+                curriculumPage = curriculumRepo.findBySubjectNameAndDateBetweenNative(subjectName, day_from, day_to, pageable);
             } else {
-                curriculumPage = curriculumRepo.findAll(pageable);
+                curriculumPage = curriculumRepo.findByCreatedAtBetween(day_from, day_to, pageable);
             }
 
             Map<String, Object> response = new HashMap<>();
