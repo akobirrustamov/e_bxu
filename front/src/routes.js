@@ -10,6 +10,9 @@ import RTLDefault from "views/rtl/default";
 import Subject from "views/admin/subject"
 import AdminAddTeacher from "views/admin/addTeacher"
 import AdminSubCategories from "views/admin/subCategories"
+import AdminCategories from "views/admin/categories"
+import AdminGroups from "views/admin/subject"
+
 
 // student imports
 import MainDashboardStudent from "views/student/default";
@@ -205,12 +208,26 @@ const routes = [
     icon: <MdOutlinePersonAddAlt className="h-6 w-6" />,
     component: <AdminAddTeacher />,
   },
-    {
+  {
+    name: "O'quv rejalar ro'yxati",
+    layout: "/admin",
+    path: "curriculum",
+    icon: <MdArticle className="h-6 w-6" />,
+    component: <AdminCategories />,
+  },
+  {
     name: "Fanlar",
     layout: "/admin",
     path: "subjects",
     icon: <MdAutoAwesomeMotion className="h-6 w-6" />,
     component: <AdminSubCategories />,
+  },
+  {
+    name: "Guruhlar",
+    layout: "/admin",
+    path: "groups",
+    icon: <MdGroups className="h-6 w-6" />,
+    component: <AdminGroups />,
   },
   {
     name: "Profile",
