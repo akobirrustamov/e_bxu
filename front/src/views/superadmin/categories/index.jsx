@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import ApiCall from "../../../config";
 import { useNavigate } from "react-router-dom";
+import { f } from "html2pdf.js";
 
 function CurriculumTable() {
   const navigate = useNavigate();
   const [curriculums, setCurriculums] = useState([]);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isUpdating2, setIsUpdating2] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -69,7 +71,6 @@ function CurriculumTable() {
       );
 
       const data = response.data || {};
-      console.log(data);
       setTotalSubjects(data.totalItems || 0);
       setCurriculums(data.content || []);
       setCurrentPage(data.currentPage || 0);
@@ -84,9 +85,12 @@ function CurriculumTable() {
   // Update from HEMIS
   const updateCurriculumsFromHemis = async () => {
     try {
+      setIsUpdating2(true);
       await ApiCall(`/api/v1/curriculum/update`, "GET");
     } catch (error) {
       console.error("Update from HEMIS error:", error);
+    } finally {
+      setIsUpdating2(false);
     }
   };
 
@@ -107,15 +111,54 @@ function CurriculumTable() {
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-3xl font-bold text-blue-700">
             O'quv Rejalar Ro'yxati
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-xl text-gray-700">
             Barcha fanlar va ularning ma'lumotlari
           </p>
         </div>
-
-        <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* Ma'lumotlarni yangilash tugmasi */}
+        <div className="mb-4 flex justify-end">
+          <button
+            onClick={updateCurriculumsFromHemis}
+            disabled={isUpdating2}
+            className={`relative whitespace-nowrap rounded-lg px-16 py-4 text-sm font-medium text-white transition-all ${
+              isUpdating2
+                ? "cursor-not-allowed bg-blue-600/80" // Semi-transparent when loading
+                : "bg-blue-600 hover:bg-blue-700 hover:shadow-md"
+            } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+          >
+            {isUpdating2 ? (
+              <span className="flex items-center justify-center">
+                <svg
+                  className="mr-2 h-4 w-4 animate-spin text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Yangilanmoqda...
+              </span>
+            ) : (
+              "HEMISdan yangilash"
+            )}
+          </button>
+        </div>
+        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Year Selector and Update Button - Combined into the other half */}
           <div className="rounded-lg bg-white p-4 shadow-md md:p-6">
             <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
@@ -155,9 +198,6 @@ function CurriculumTable() {
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-600">
-                      Ma'lumotlarni yangilash
-                    </p>
                     <button
                       onClick={handleUpdateCurriculums}
                       disabled={isUpdating}
@@ -192,7 +232,7 @@ function CurriculumTable() {
                           Yangilanmoqda...
                         </>
                       ) : (
-                        "Yangilash"
+                        "Ma'lumotlarni olish"
                       )}
                     </button>
                   </div>
@@ -280,109 +320,110 @@ function CurriculumTable() {
           </div>
         ) : curriculums.length > 0 ? (
           <div className="overflow-hidden rounded-lg shadow">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      Fan kodi
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      Fan nomi
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      Bo'lim
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      Kredit
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      Akademik yuk
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      Nazorat turlari
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    >
-                      Holati
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                  {curriculums.map((curriculum) => (
-                    <tr key={curriculum.id} className="hover:bg-gray-50">
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {curriculum.subject?.code || "N/A"}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {curriculum.subject?.name || "N/A"}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <div className="text-sm text-gray-500">
-                          {curriculum.departments?.[0]?.name || "N/A"}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <div className="text-sm text-gray-500">
-                          {curriculum.credit || "N/A"}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <div className="text-sm text-gray-500">
-                          {curriculum.totalAcload || "N/A"}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <div className="flex flex-wrap gap-1">
-                          {curriculum.subjectExamTypes?.map((exam, index) => (
-                            <span
-                              key={index}
-                              className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800"
-                            >
-                              {exam.examType} ({exam.max_ball})
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                            curriculum.active
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {curriculum.active ? "Faol" : "Nofaol"}
-                        </span>
-                      </td>
+            <div className="overflow-hidden rounded-lg border border-gray-200">
+              <div className="overflow-x-auto">
+                <table className="w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th
+                        scope="col"
+                        className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Fan kodi
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Fan nomi
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Bo'lim
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Kredit
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Akademik yuk
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Nazorat turlari
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                      >
+                        Holati
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 bg-white">
+                    {curriculums.map((curriculum) => (
+                      <tr
+                        key={curriculum.id}
+                        className="cursor-pointer hover:bg-gray-50"
+                        onClick={() =>
+                          navigate(`/superadmin/curriculum/${curriculum.id}`)
+                        }
+                      >
+                        <td className="whitespace-nowrap px-3 py-2 text-sm font-medium text-gray-900">
+                          {curriculum.subject?.code || "N/A"}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm font-medium text-gray-900">
+                          {curriculum.subject?.name || "N/A"}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500">
+                          {curriculum.departments?.[0]?.name || "N/A"}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500">
+                          {curriculum.credit || "N/A"}
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2 text-sm text-gray-500">
+                          {curriculum.totalAcload || "N/A"}
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-3 py-2"
+                          onClick={(e) => e.stopPropagation()} // Bu qismni bosganda navigate bo'lmasligi uchun
+                        >
+                          <div className="flex flex-wrap gap-1">
+                            {curriculum.subjectExamTypes?.map((exam, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800"
+                              >
+                                {exam.examType} ({exam.max_ball})
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-2">
+                          <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                              curriculum.active
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {curriculum.active ? "Faol" : "Nofaol"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {/* Pagination */}

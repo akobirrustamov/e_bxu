@@ -42,7 +42,7 @@ public interface CurriculumRepo extends JpaRepository<Curriculum, UUID> {
             countQuery = """
         SELECT COUNT(*) FROM curriculum c
         JOIN subject s ON c.subject_id = s.id
-        WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :subjectName, '%'))
+        WHERE (LOWER(s.name) LIKE LOWER(CONCAT('%', :subjectName, '%')) or LOWER(s.code) LIKE LOWER(CONCAT('%', :subjectName, '%')))
         AND c.created_at BETWEEN :dayFrom AND :dayTo
         """,
             nativeQuery = true

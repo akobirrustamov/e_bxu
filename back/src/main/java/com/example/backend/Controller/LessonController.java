@@ -32,13 +32,15 @@ public class LessonController {
     public HttpEntity<?> updateLesson(@PathVariable UUID curriculumId) {
 
 
+        System.out.printf("Curriculum Id: %s\n", curriculumId);
         Optional<Curriculum> byId = curriculumRepo.findById(curriculumId);
-        if (byId.isPresent()) {
+        if (byId.isEmpty()) {
           return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         Curriculum curriculum = byId.get();
 
-        System.out.println("\u25B6\uFE0F Starting lesson update...");
+
+        System.out.println("\u25B6\uFE0F Starting lesson update..."+curriculum.getHemisId());
 
         List<TokenHemis> all = tokenHemisRepo.findAll();
         if (all.isEmpty()) {
@@ -53,7 +55,7 @@ public class LessonController {
                     "v1/data/curriculum-subject-topic-list",
                     HttpMethod.GET,
                     Map.of("Authorization", "Bearer " + token),
-                    Map.of("curriculum", curriculum.getHemisId()),
+                    Map.of("_subject", curriculum.getSubject().getHemisId()),
                     null
             );
 
@@ -125,8 +127,8 @@ public class LessonController {
 
 
 
-    @GetMapping("/curriculumId")
-    public HttpEntity<?> getCurriculum(@RequestParam UUID curriculumId) {
+    @GetMapping("/{curriculumId}")
+    public HttpEntity<?> getCurriculum(@PathVariable UUID curriculumId) {
         List<Lesson> lessons = lessonRepo.findByIdCurriculm(curriculumId);
         return ResponseEntity.ok(lessons);
     }

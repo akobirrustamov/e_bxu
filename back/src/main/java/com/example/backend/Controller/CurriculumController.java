@@ -206,7 +206,7 @@ public class CurriculumController {
             @RequestParam Long day_to, @RequestParam Long day_from,
             @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
             @org.springframework.web.bind.annotation.RequestParam(defaultValue = "20") int size,
-            @org.springframework.web.bind.annotation.RequestParam(required = false) String subjectName
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String subject_name
     ) {
         try {
             org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
@@ -215,8 +215,8 @@ public class CurriculumController {
 
 
 
-            if (subjectName != null && !subjectName.isBlank()) {
-                curriculumPage = curriculumRepo.findBySubjectNameAndDateBetweenNative(subjectName, day_from, day_to, pageable);
+            if (subject_name != null && !subject_name.isBlank()) {
+                curriculumPage = curriculumRepo.findBySubjectNameAndDateBetweenNative(subject_name, day_from, day_to, pageable);
             } else {
                 curriculumPage = curriculumRepo.findByCreatedAtBetween(day_from, day_to, pageable);
             }
