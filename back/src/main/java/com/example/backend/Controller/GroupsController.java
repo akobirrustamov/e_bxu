@@ -40,7 +40,7 @@ public class GroupsController {
         System.out.println("▶️ Starting group update...");
 
         int page = 1;
-        int maxPages = 200;
+        int maxPages = 150;
         int savedCount = 0;
 
         // 1. Get token from DB

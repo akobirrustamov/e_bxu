@@ -25,14 +25,14 @@ public class CurriculumController {
         return new ResponseEntity<>(curriculumRepo.findAll(), HttpStatus.OK);
     }
 
-
-    @GetMapping("/update")
-    public HttpEntity<?> updateCurriculum(){
-
-
-       
-
-    }
+//
+//    @GetMapping("/update")
+//    public HttpEntity<?> updateCurriculum(){
+//
+//
+//
+//
+//    }
 
 
 
