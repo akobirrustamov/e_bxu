@@ -70,8 +70,8 @@ function Categories() {
   };
 
   useEffect(() => {
-    // getGroups();
-    getGroupsFromHemis();
+    getGroups();
+    // getGroupsFromHemis();
   }, []);
 
   // Фильтрация по названию группы
