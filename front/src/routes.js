@@ -37,6 +37,7 @@ import RectorExpired from "views/rector/expiredAppeals/Expired"
 import MainDashboardSuper from "views/superadmin/default";
 import SuperadminAdmins from "views/superadmin/tables";
 import SuperadminGroups from "views/superadmin/subject";
+import SuperAdminFaculty from "views/superadmin/faculty";
 import SuperAdminCategories from "views/superadmin/categories"
 import SuperAdminSubCategories from "views/superadmin/subCategories"
 import SuperAdminTeacher from "views/superadmin/teacher"
@@ -318,6 +319,13 @@ const routes = [
     path: "teachers",
     icon: <MdPerson className="h-6 w-6" />,
     component: <SuperAdminTeacher />,
+  },
+  {
+    name: "Fakultet",
+    layout: "/superadmin",
+    path: "faculty",
+    icon: <MdAutoAwesomeMotion className="h-6 w-6" />,
+    component: <SuperAdminFaculty />,
   },
 
   {
