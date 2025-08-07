@@ -197,7 +197,7 @@ public class CurriculumController {
 
     @GetMapping("/all")
     public ResponseEntity<List<Curriculum>> getAllCurriculum() {
-        return ResponseEntity.ok(curriculumRepo.findAll());
+        return ResponseEntity.ok(curriculumRepo.findAllActive());
     }
 
 

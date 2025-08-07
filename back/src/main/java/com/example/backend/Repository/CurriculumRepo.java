@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -62,4 +63,7 @@ public interface CurriculumRepo extends JpaRepository<Curriculum, UUID> {
             @Param("dayTo") Long dayTo,
             Pageable pageable
     );
+
+    @Query(value = "select * from curriculum where active and at_semester", nativeQuery = true)
+    List<Curriculum> findAllActive();
 }
