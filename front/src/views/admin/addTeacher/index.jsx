@@ -19,6 +19,8 @@ const Teachers = () => {
   const [show, setShow] = useState(false);
   const [subjects, setSubjects] = useState([]);
   const [selectedSubjects, setSelectedSubjects] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(null);
+  const [availableYears, setAvailableYears] = useState([]);
 
   useEffect(() => {
     getTeachers();
@@ -55,7 +57,7 @@ const Teachers = () => {
         phone: editingTeacher.phone,
         name: editingTeacher.name,
         password: editingTeacher.password,
-        subjects: selectedSubjects.map((s) => s.value), // curriculum.id
+        subjects: selectedSubjects.map((s) => s.value) || [], // curriculum.id
       };
 
       await ApiCall(
@@ -74,28 +76,56 @@ const Teachers = () => {
   const handleEditClick = async (teacher) => {
     try {
       const response = await ApiCall("/api/v1/curriculum/all", "GET");
-      console.log("Curriculum response:", response.data);
+      const data = response.data;
+      console.log(data);
 
-      const curriculumOptions = response.data.map((item) => ({
-        label: `${item.subject.name} (${item.subject.code})`,
-        value: item.id, // ID curriculum, не subject
-        name: item.subject.name,
-        code: item.subject.code,
-      }));
+      // 1. Получаем список учебных годов из created_at
+      const yearsSet = new Set();
 
-      setSubjects(curriculumOptions);
+      data.forEach((item) => {
+        const createdDate = new Date(item.created_at * 1000); // from timestamp
+        const year =
+          createdDate.getMonth() >= 7
+            ? createdDate.getFullYear()
+            : createdDate.getFullYear() - 1;
 
-      // Если у учителя уже есть предметы (нужно адаптировать по API)
-      const preSelected = curriculumOptions.filter((s) =>
-        teacher.subjects?.includes(s.value)
-      );
+        yearsSet.add(year);
+      });
 
-      setSelectedSubjects(preSelected);
+      const yearOptions = Array.from(yearsSet)
+        .sort((a, b) => b - a)
+        .map((y) => ({
+          label: `${y}-${y + 1}`,
+          value: y,
+        }));
+
+      setAvailableYears(yearOptions);
+      setSelectedYear(yearOptions[0]); // по умолчанию — последний год
       setEditingTeacher({ ...teacher, password: "" });
       setShow(true);
+      setSubjects(data); // сохраним все, отфильтруем позже
+      const preSelected = []; // пока пусто
+      setSelectedSubjects(preSelected);
     } catch (error) {
       console.error("Error fetching curriculum subjects:", error);
     }
+  };
+  const getFilteredSubjectsByYear = (allSubjects, year) => {
+    const start = new Date(`${year}-08-01`).getTime() / 1000; // timestamp начала года
+    const end = new Date(`${year + 1}-08-01`).getTime() / 1000; // конца
+    console.log("stapm:", allSubjects);
+
+    const filtered = allSubjects
+      .filter((item) => item.created_at >= start && item.created_at < end)
+      .map((item) => ({
+        label: `${item.subject.name} (${item.subject.code})`,
+        value: item.id,
+        code: item.subject.code,
+      }));
+
+    console.log("📦 Filtered subjects for year", year, filtered);
+
+    return filtered;
   };
 
   const deleteTeacher = async (id) => {
@@ -194,7 +224,7 @@ const Teachers = () => {
 
       <Rodal
         width={500}
-        height={510}
+        height={600}
         visible={show}
         onClose={() => setShow(false)}
         customStyles={{
@@ -288,22 +318,47 @@ const Teachers = () => {
               />
             </div>
             {editingTeacher && (
-              <div className="mb-6">
-                <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Fanlar (Predmetlar)
-                </label>
-                <Select
-                  isMulti
-                  options={subjects}
-                  value={selectedSubjects}
-                  onChange={(selected) => setSelectedSubjects(selected)}
-                  placeholder="Fan(lar)ni tanlang"
-                  filterOption={(option, input) =>
-                    option.label.toLowerCase().includes(input.toLowerCase()) ||
-                    option.data.code.toLowerCase().includes(input.toLowerCase())
-                  }
-                />
-              </div>
+              <>
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    O'quv yili
+                  </label>
+                  <Select
+                    options={availableYears}
+                    value={selectedYear}
+                    onChange={(year) => {
+                      setSelectedYear(year);
+                      setSelectedSubjects([]); // сбросить выбранные предметы
+                    }}
+                    placeholder="O'quv yilini tanlang"
+                  />
+                </div>
+
+                <div className="mb-6">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Fanlar (Predmetlar)
+                  </label>
+                  <Select
+                    isMulti
+                    options={getFilteredSubjectsByYear(
+                      subjects,
+                      selectedYear?.value
+                    )}
+                    value={selectedSubjects}
+                    onChange={(selected) => setSelectedSubjects(selected)}
+                    placeholder="Fan(lar)ni tanlang"
+                    filterOption={(option, input) =>
+                      option.label
+                        .toLowerCase()
+                        .includes(input.toLowerCase()) ||
+                      option.data.code
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    noOptionsMessage={() => "Fan topilmadi"}
+                  />
+                </div>
+              </>
             )}
 
             <div className="flex justify-end gap-3">

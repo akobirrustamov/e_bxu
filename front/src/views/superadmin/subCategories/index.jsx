@@ -4,6 +4,8 @@ import ApiCall from "../../../config";
 import Rodal from "rodal";
 import "rodal/lib/rodal.css";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Subjects() {
   const navigate = useNavigate();
@@ -59,6 +61,12 @@ function Subjects() {
     try {
       const response = await ApiCall(`/api/v1/subjects/update`, "GET");
       console.log("update", response);
+      if (response?.error) {
+        toast.error("❌ Avtorizatsiya xatosi: Token topilmadi yoki noto‘g‘ri.");
+        console.log(response.data);
+      } else {
+        toast.error("❌ Guruhlarni yangilashda xatolik yuz berdi.");
+      }
     } catch (error) {
       console.error("Xatolik (yangilash):", error);
     }
@@ -82,6 +90,7 @@ function Subjects() {
 
   return (
     <div className="min-h-screen p-4">
+      <ToastContainer/>
       <div className="mx-auto max-w-7xl">
         <h1 className="text-center text-4xl font-bold text-blue-700">
           Fanlar ro'yxati
