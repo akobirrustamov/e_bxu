@@ -168,8 +168,14 @@ public class CurriculumController {
                                 .created_at(createdAt)
                                 .updated_at(updatedAt)
                                 .created(LocalDateTime.now())
+                                .isHaveLessons(false)
                                 .build();
-                        curriculumRepo.save(curriculum);
+                        try{
+                            curriculumRepo.save(curriculum);
+
+                        }catch (Exception e){
+                            System.out.printf("Curriculum could not be saved\n");
+                        }
                         savedCount++;
                     }
                 }

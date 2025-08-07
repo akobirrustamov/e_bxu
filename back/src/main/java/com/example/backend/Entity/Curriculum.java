@@ -45,6 +45,7 @@ public class Curriculum {
     private Long updated_at;
 
 
+    private Boolean isHaveLessons;
     private LocalDateTime created;
 
 
