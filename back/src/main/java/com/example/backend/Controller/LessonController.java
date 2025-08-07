@@ -72,11 +72,11 @@ public class LessonController {
                 return ResponseEntity.ok("No lessons found for curriculum ID: " + curriculumId);
             }
 
-            Optional<Curriculum> optionalCurriculum = curriculumRepo.findByHemisId(curriculum.getHemisId());
-            if (optionalCurriculum.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("❌ Curriculum not found for ID: " + curriculumId);
-            }
-            Curriculum curriculum = optionalCurriculum.get();
+//            Optional<Curriculum> optionalCurriculum = curriculumRepo.findByHemisId(curriculum.getHemisId());
+//            if (optionalCurriculum.isEmpty()) {
+//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("❌ Curriculum not found for ID: " + curriculumId);
+//            }
+//            Curriculum curriculum = optionalCurriculum.get();
 
             int savedCount = 0;
 
