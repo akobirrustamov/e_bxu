@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface SubjectRepo extends JpaRepository<Subject,Integer> {
 
     @Query(value = "select * from subjects where hemis_id=:hemisId", nativeQuery = true)
-    Optional<Object> findByHemisId(Integer hemisId);
+    Optional<Subject> findByHemisId(Integer hemisId);
 }
