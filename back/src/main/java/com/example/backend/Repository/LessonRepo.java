@@ -6,12 +6,13 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface LessonRepo extends JpaRepository<Lesson,Integer> {
+public interface LessonRepo extends JpaRepository<Lesson, UUID> {
     @Query(value = "select * from lessons where hemis_id=:hemisId", nativeQuery = true)
     Optional<Lesson> findByHemisId(Integer hemisId);
 
 
-    @Query(value = "select * from lessons where curriculumId=:curriculumId", nativeQuery = true)
-    List<Lesson> findByIdCurriculm(Integer curriculumId);
+    @Query(value = "select * from lessons where curriculum_id=:curriculumId", nativeQuery = true)
+    List<Lesson> findByIdCurriculm(UUID curriculumId);
 }

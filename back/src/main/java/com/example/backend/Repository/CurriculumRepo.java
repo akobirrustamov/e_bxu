@@ -9,8 +9,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface CurriculumRepo extends JpaRepository<Curriculum,Integer> {
+public interface CurriculumRepo extends JpaRepository<Curriculum, UUID> {
 
     @Query(value = "select * from curriculum where hemis_id=:curriculumHemisId", nativeQuery = true)
     Optional<Curriculum> findByHemisId(Integer curriculumHemisId);
