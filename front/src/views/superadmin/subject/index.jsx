@@ -19,8 +19,8 @@ function Groups() {
       setIsUpdating(true);
       await getGroupsFromHemis(); // просто инициирует обновление
       await getGroups(); // получает свежие группы
-      const newResponse = await ApiCall(`/api/v1/groups/1`, "GET");
-      console.log(newResponse.data);
+      // const newResponse = await ApiCall(`/api/v1/groups/1`, "GET");
+      // console.log(newResponse.data);
     } catch (error) {
       console.error("Xatolik (yangilash):", error);
       alert("Guruhlar yangilanmadi. Iltimos, qayta urinib ko‘ring.");
