@@ -86,6 +86,7 @@ public class GroupsController {
                         for (Map<String, Object> groupData : items) {
                             Groups group = mapToGroupEntity(groupData);
                             if (!groupsRepo.findByHemisId(group.getHemisId()).isPresent()) {
+
                                 groupsRepo.save(group);
                                 savedCount++;
                             }
@@ -146,11 +147,13 @@ public class GroupsController {
     @GetMapping("/update-students/{groupId}")
     public ResponseEntity<?> updateGroupStudents(@PathVariable UUID groupId) {
         Optional<Groups> groupOptional = groupsRepo.findById(groupId);
+
         if (groupOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Group not found");
         }
 
         Groups group = groupOptional.get();
+        System.out.print(group);
         List<TokenHemis> all = tokenHemisRepo.findAll();
         if (all.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("❌ Token not found");
