@@ -29,4 +29,27 @@ public interface CurriculumRepo extends JpaRepository<Curriculum,Integer> {
     )
     Page<Curriculum> findBySubjectNameNative(@Param("subjectName") String subjectName, Pageable pageable);
 
+
+    @Query(
+            value = """
+        SELECT c.* FROM curriculum c
+        JOIN subject s ON c.subject_id = s.id
+        WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :subjectName, '%'))
+        AND c.created_at BETWEEN :dayFrom AND :dayTo
+        """,
+            countQuery = """
+        SELECT COUNT(*) FROM curriculum c
+        JOIN subject s ON c.subject_id = s.id
+        WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :subjectName, '%'))
+        AND c.created_at BETWEEN :dayFrom AND :dayTo
+        """,
+            nativeQuery = true
+    )
+    Page<Curriculum> findBySubjectNameAndDateBetweenNative(
+            @Param("subjectName") String subjectName,
+            @Param("dayFrom") Long dayFrom,
+            @Param("dayTo") Long dayTo,
+            Pageable pageable
+    );
+
 }

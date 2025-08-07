@@ -25,10 +25,9 @@ public class Lesson {
     private Integer topic_load;
     private Integer position;
     @ManyToOne
-    private Subject subject;
+    private Curriculum curriculum;
     private Boolean active;
     private Integer department;
-    private Integer curriculum;
     private Integer semester;
     private Integer trainingType;
     private Long createdAt;

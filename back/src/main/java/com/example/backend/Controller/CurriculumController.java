@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
@@ -198,6 +199,7 @@ public class CurriculumController {
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> getCurriculum(
+            @RequestParam Long day_to, @RequestParam Long day_from,
             @org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int page,
             @org.springframework.web.bind.annotation.RequestParam(defaultValue = "20") int size,
             @org.springframework.web.bind.annotation.RequestParam(required = false) String subjectName
@@ -208,7 +210,7 @@ public class CurriculumController {
             org.springframework.data.domain.Page<Curriculum> curriculumPage;
 
             if (subjectName != null && !subjectName.isBlank()) {
-                curriculumPage = curriculumRepo.findBySubjectNameNative(subjectName, pageable);
+                curriculumPage = curriculumRepo.findBySubjectNameAndDateBetweenNative(subjectName, pageable);
             } else {
                 curriculumPage = curriculumRepo.findAll(pageable);
             }
