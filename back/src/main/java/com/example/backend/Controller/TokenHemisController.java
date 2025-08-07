@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,7 +39,7 @@ public class TokenHemisController {
         return ResponseEntity.ok("Saved successfully");
     }
     @DeleteMapping("/hemis/{id}")
-    public HttpEntity<?> deleteHemis(@PathVariable Integer id) {
+    public HttpEntity<?> deleteHemis(@PathVariable UUID id) {
         tokenHemisRepo.deleteById(id);
         return ResponseEntity.ok("Deleted successfully");
     }
