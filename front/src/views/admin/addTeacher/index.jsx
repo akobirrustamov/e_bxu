@@ -17,6 +17,8 @@ const Teachers = () => {
   });
   const [editingTeacher, setEditingTeacher] = useState(null);
   const [show, setShow] = useState(false);
+  const [subjects, setSubjects] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
 
   useEffect(() => {
     getTeachers();
@@ -53,8 +55,14 @@ const Teachers = () => {
         phone: editingTeacher.phone,
         name: editingTeacher.name,
         password: editingTeacher.password,
+        subjects: selectedSubjects.map((s) => s.value), // curriculum.id
       };
-      await ApiCall(`/api/v1/teacher/${editingTeacher.id}`, "PUT", updatedTeacher);
+
+      await ApiCall(
+        `/api/v1/teacher/${editingTeacher.id}`,
+        "PUT",
+        updatedTeacher
+      );
       await getTeachers();
       setEditingTeacher(null);
       setShow(false);
@@ -63,9 +71,31 @@ const Teachers = () => {
     }
   };
 
-  const handleEditClick = (teacher) => {
-    setEditingTeacher({ ...teacher, password: "" });
-    setShow(true);
+  const handleEditClick = async (teacher) => {
+    try {
+      const response = await ApiCall("/api/v1/curriculum", "GET");
+      console.log("Curriculum response:", response.data);
+
+      const curriculumOptions = response.data.map((item) => ({
+        label: `${item.subject.name} (${item.subject.code})`,
+        value: item.id, // ID curriculum, не subject
+        name: item.subject.name,
+        code: item.subject.code,
+      }));
+
+      setSubjects(curriculumOptions);
+
+      // Если у учителя уже есть предметы (нужно адаптировать по API)
+      const preSelected = curriculumOptions.filter((s) =>
+        teacher.subjects?.includes(s.value)
+      );
+
+      setSelectedSubjects(preSelected);
+      setEditingTeacher({ ...teacher, password: "" });
+      setShow(true);
+    } catch (error) {
+      console.error("Error fetching curriculum subjects:", error);
+    }
   };
 
   const deleteTeacher = async (id) => {
@@ -175,7 +205,9 @@ const Teachers = () => {
       >
         <div className="p-4">
           <h2 className="mb-6 text-xl font-bold text-gray-800">
-            {editingTeacher ? "O'qituvchi tahrirlash" : "Yangi o'qituvchi qo'shish"}
+            {editingTeacher
+              ? "O'qituvchi tahrirlash"
+              : "Yangi o'qituvchi qo'shish"}
           </h2>
           <form
             onSubmit={(e) => {
@@ -196,7 +228,10 @@ const Teachers = () => {
                 value={editingTeacher ? editingTeacher.name : newTeacher.name}
                 onChange={(e) => {
                   if (editingTeacher) {
-                    setEditingTeacher({ ...editingTeacher, name: e.target.value });
+                    setEditingTeacher({
+                      ...editingTeacher,
+                      name: e.target.value,
+                    });
                   } else {
                     setNewTeacher({ ...newTeacher, name: e.target.value });
                   }
@@ -215,7 +250,10 @@ const Teachers = () => {
                 value={editingTeacher ? editingTeacher.phone : newTeacher.phone}
                 onChange={(e) => {
                   if (editingTeacher) {
-                    setEditingTeacher({ ...editingTeacher, phone: e.target.value });
+                    setEditingTeacher({
+                      ...editingTeacher,
+                      phone: e.target.value,
+                    });
                   } else {
                     setNewTeacher({ ...newTeacher, phone: e.target.value });
                   }
@@ -231,7 +269,9 @@ const Teachers = () => {
               </label>
               <input
                 type="password"
-                value={editingTeacher ? editingTeacher.password : newTeacher.password}
+                value={
+                  editingTeacher ? editingTeacher.password : newTeacher.password
+                }
                 onChange={(e) => {
                   if (editingTeacher) {
                     setEditingTeacher({
@@ -247,6 +287,24 @@ const Teachers = () => {
                 required
               />
             </div>
+            {editingTeacher && (
+              <div className="mb-6">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Fanlar (Predmetlar)
+                </label>
+                <Select
+                  isMulti
+                  options={subjects}
+                  value={selectedSubjects}
+                  onChange={(selected) => setSelectedSubjects(selected)}
+                  placeholder="Fan(lar)ni tanlang"
+                  filterOption={(option, input) =>
+                    option.label.toLowerCase().includes(input.toLowerCase()) ||
+                    option.data.code.toLowerCase().includes(input.toLowerCase())
+                  }
+                />
+              </div>
+            )}
 
             <div className="flex justify-end gap-3">
               <button
