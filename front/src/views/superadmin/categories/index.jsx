@@ -34,11 +34,11 @@ function CurriculumTable() {
 
       // Create dates for the academic year (September 1 to June 30)
       const day_from = new Date(startYear, 8, 1).getTime() / 1000; // September 1
-      const day_to = new Date(endYear, 5, 30).getTime() / 1000; // June 30
+      const day_to = new Date(endYear, 5, 1).getTime() / 1000; // June 30
 
       // Update only for selected year
       await ApiCall(
-        `/api/v1/curriculum/update?day_from=${day_from}&day_to=${day_to}`,
+        `/api/v1/curriculum/update?day_from=${day_from}&day_to=${day_to}&subject_name=${}`,
         "GET"
       );
 
@@ -62,8 +62,8 @@ function CurriculumTable() {
       const [startYear, endYear] = selectedYear.split("-").map(Number);
 
       // Create dates for the academic year (September 1 to June 30)
-      const day_from = new Date(startYear, 8, 1).getTime() / 1000; // September 1
-      const day_to = new Date(endYear, 5, 30).getTime() / 1000; // June 30
+      const day_from = new Date(startYear, 7, 1).getTime() / 1000; // avgust 1
+      const day_to = new Date(endYear, 7).getTime() / 1000; // avgust 1
 
       const response = await ApiCall(
         `/api/v1/curriculum?page=${page}&day_from=${day_from}&day_to=${day_to}`,
@@ -232,7 +232,7 @@ function CurriculumTable() {
                           Yangilanmoqda...
                         </>
                       ) : (
-                        "Ma'lumotlarni olish"
+                        "Filtirlash"
                       )}
                     </button>
                   </div>
