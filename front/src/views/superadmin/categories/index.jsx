@@ -1,333 +1,537 @@
 import React, { useEffect, useState } from "react";
-import Card from "../../../components/card";
 import ApiCall from "../../../config";
-import Rodal from "rodal";
-import "rodal/lib/rodal.css";
 import { useNavigate } from "react-router-dom";
-// import Categories from "views/rector/categories";
 
-function Categories() {
+function CurriculumTable() {
   const navigate = useNavigate();
-  const [groups, setGroups] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [departments, setDepartments] = useState([]);
-  const [selectedDepartment, setSelectedDepartment] = useState("Sirtqi bo'lim");
+  const [curriculums, setCurriculums] = useState([]);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // loading state
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [selectedYear, setSelectedYear] = useState("2024-2025");
+  const [totalSubjects, setTotalSubjects] = useState(0);
 
-  // Обновить группы с сервера
-  const handleUpdateGroups = async () => {
+  // Generate year options (e.g., 2023-2024, 2024-2025, etc.)
+  const yearOptions = [];
+  const currentYear = new Date().getFullYear();
+  for (let i = -2; i <= 2; i++) {
+    const startYear = currentYear + i;
+    const endYear = startYear + 1;
+    yearOptions.push(`${startYear}-${endYear}`);
+  }
+
+  // Update curriculum data
+  // Update curriculum data for selected year only
+  const handleUpdateCurriculums = async () => {
     try {
       setIsUpdating(true);
-      await getGroupsFromHemis(); // просто инициирует обновление
-      await getGroups(); // получает свежие группы
-      // const newResponse = await ApiCall(`/api/v1/groups/1`, "GET");
-      // console.log(newResponse.data);
+
+      // Extract years from selection (e.g., "2024-2025" → 2024 and 2025)
+      const [startYear, endYear] = selectedYear.split("-").map(Number);
+
+      // Create dates for the academic year (September 1 to June 30)
+      const day_from = new Date(startYear, 8, 1).getTime() / 1000; // September 1
+      const day_to = new Date(endYear, 5, 30).getTime() / 1000; // June 30
+
+      // Update only for selected year
+      await ApiCall(
+        `/api/v1/curriculum/update?day_from=${day_from}&day_to=${day_to}`,
+        "GET"
+      );
+
+      // Refresh data after update
+      await fetchCurriculums(currentPage);
     } catch (error) {
-      console.error("Xatolik (yangilash):", error);
+      console.error("Update error:", error);
       alert(
-        "O'quv rejalar ro'yxati yangilanmadi. Iltimos, qayta urinib ko‘ring."
+        "O'quv rejalar ro'yxati yangilanmadi. Iltimos, qayta urinib ko'ring."
       );
     } finally {
       setIsUpdating(false);
     }
   };
-
-  // Получить список групп
-  const getGroups = async () => {
+  // Fetch curriculum data
+  const fetchCurriculums = async (page = 0) => {
     try {
       setIsLoading(true);
-      const response = await ApiCall(`/api/v1/curriculum`, "GET");
-      const allGroups = response.data || [];
-      console.log("categories", allGroups);
 
-      setGroups(allGroups);
+      // Extract years from selection (e.g., "2024-2025" → 2024 and 2025)
+      const [startYear, endYear] = selectedYear.split("-").map(Number);
 
-      const uniqueDepartments = [
-        ...new Set(allGroups.map((group) => group.departmentName)),
-      ];
-      setDepartments(uniqueDepartments);
+      // Create dates for the academic year (September 1 to June 30)
+      const day_from = new Date(startYear, 8, 1).getTime() / 1000; // September 1
+      const day_to = new Date(endYear, 5, 30).getTime() / 1000; // June 30
 
-      const storedDepartment = localStorage.getItem("selectedDepartment");
-      if (storedDepartment && uniqueDepartments.includes(storedDepartment)) {
-        setSelectedDepartment(storedDepartment);
-      } else {
-        setSelectedDepartment(uniqueDepartments[0]);
-      }
+      const response = await ApiCall(
+        `/api/v1/curriculum?page=${page}&day_from=${day_from}&day_to=${day_to}`,
+        "GET"
+      );
+
+      const data = response.data || {};
+      console.log(data);
+      setTotalSubjects(data.totalItems || 0);
+      setCurriculums(data.content || []);
+      setCurrentPage(data.currentPage || 0);
+      setTotalPages(data.totalPages || 1);
     } catch (error) {
-      console.error("Xatolik (O'quv rejalar ro'yxati):", error);
+      console.error("Fetch error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Отправить запрос на обновление (не возвращает группы)
-  const getGroupsFromHemis = async () => {
+  // Update from HEMIS
+  const updateCurriculumsFromHemis = async () => {
     try {
-      const response = await ApiCall(`/api/v1/curriculum/update`, "GET");
-      console.log("update", response);
+      await ApiCall(`/api/v1/curriculum/update`, "GET");
     } catch (error) {
-      console.error("Xatolik (yangilash):", error);
+      console.error("Update from HEMIS error:", error);
     }
   };
 
   useEffect(() => {
-    getGroups();
-    // getGroupsFromHemis();
+    fetchCurriculums();
   }, []);
 
-  // Фильтрация по названию группы
-  // Фильтрация по названию группы и выбранному отделу
-
-  const filteredGroups = Array.isArray(groups)
-    ? groups
-        .filter((groups) => groups?.structureType === selectedDepartment)
-        .filter((groups) =>
-          groups?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-    : [];
+  // Handle page change
+  const handlePageChange = (newPage) => {
+    if (newPage >= 0 && newPage < totalPages) {
+      setCurrentPage(newPage);
+      fetchCurriculums(newPage);
+    }
+  };
 
   return (
     <div className="min-h-screen p-4">
       <div className="mx-auto max-w-7xl">
-        <h1 className="text-center text-4xl font-bold text-blue-700">
-          O'quv rejalar ro'yxati ro'yxati
-        </h1>
-
-        {/* Stats Section */}
-        <div className="p-2">
-          <div className="flex flex-col items-center justify-center gap-6 md:flex-row">
-            <div className="flex items-center gap-2 rounded-lg px-6 py-3">
-              <span className="font-medium text-gray-700">Jami bo'limlar:</span>
-              <span className="text-xl font-semibold text-blue-600">
-                {departments.length} ta
-              </span>
-            </div>
-            <div className="flex items-center gap-2 rounded-lg px-6 py-3">
-              <span className="font-medium text-gray-700">
-                Jami O'quv rejalar ro'yxati:
-              </span>
-              <span className="text-xl font-semibold text-blue-600">
-                {groups.length} ta
-              </span>
-            </div>
-          </div>
-        </div>
-        <hr />
-        {/* Department Filters */}
-        <div className="p-4">
-          <h2 className="mb-4 text-center text-lg font-semibold text-gray-700">
-            Bo'limlar bo'yicha filtrlash
-          </h2>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {departments.map((dept, index) => (
-              <button
-                key={index}
-                className={`rounded-lg px-6 py-2 transition-all duration-200 hover:shadow-md ${
-                  selectedDepartment === dept
-                    ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-                onClick={() => {
-                  setSelectedDepartment(dept);
-                  localStorage.setItem("selectedDepartment", dept);
-                }}
-              >
-                {dept}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Actions Section */}
-        <div className="py-4">
-          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            {/* Search Input */}
-            <div className="relative w-full md:w-1/3">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <svg
-                  className="h-5 w-5 text-gray-400"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <input
-                type="text"
-                placeholder="O'quv rejalar ro'yxati qidiruvi..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 py-3 pl-10 pr-12 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm("")}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 transition-colors hover:text-gray-600"
-                >
-                  <svg
-                    className="h-5 w-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              )}
-            </div>
-            {/* Update Button */}
-            <button
-              onClick={handleUpdateGroups}
-              disabled={isUpdating}
-              className={`flex items-center gap-2 rounded-lg px-6 py-3 font-medium text-white transition-all ${
-                isUpdating
-                  ? "bg-gray-400"
-                  : "bg-gradient-to-r from-green-500 to-green-600 shadow-md hover:from-green-600 hover:to-green-700 hover:shadow-lg"
-              }`}
-            >
-              {isUpdating ? (
-                <>
-                  <svg
-                    className="h-5 w-5 animate-spin text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Yangilanmoqda...
-                </>
-              ) : (
-                <>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  O'quv rejalar ro'yxatini yangilash
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Groups Cards */}
-        <div className="mb-8">
-          {isLoading ? (
-            // 👇 Yuklanayotgan payt
-            <div className="flex flex-col items-center justify-center py-12">
-              <svg
-                className="h-10 w-10 animate-spin text-blue-600"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                />
-              </svg>
-              <p className="mt-4 text-sm text-gray-500">
-                O'quv rejalar ro'yxati yuklanmoqda...
-              </p>
-            </div>
-          ) : filteredGroups.length > 0 ? (
-            // 👇 Ma'lumotlar mavjud
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredGroups.map((group) => (
-                <div
-                  key={group.id}
-                  className="group relative transform cursor-pointer overflow-hidden rounded-xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-                >
-                  <div className="p-6">
-                    <h2 className="mb-2 text-xl font-bold text-gray-800 transition-colors group-hover:text-white">
-                      {group?.name}
-                    </h2>
-                    <p className="text-gray-600 transition-colors group-hover:text-blue-100">
-                      <b>{group?.specialtyName || "Noma'lum"}</b>
-                    </p>
-                  </div>
-                  <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-500 to-blue-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            // 👇 Ma'lumotlar topilmadi
-            <div className="rounded-xl bg-white py-12 text-center shadow-sm">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <h3 className="mt-2 text-lg font-medium text-gray-900">
-                O'quv rejalar ro'yxati topilmadi!
-              </h3>
-              <p className="mx-auto mt-1 max-w-md text-gray-500">
-                {searchTerm || selectedDepartment !== "Sirtqi bo'lim"
-                  ? "Qidiruvga mos yoki tanlangan bo'limdagi O'quv rejalar ro'yxati mavjud emas"
-                  : "Hozircha hech qanday o'quv rejasi mavjud emas. Yangilash tugmasini bosib sinab ko‘ring."}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Results Count */}
-        <div className="p-4 text-center">
-          <p className="text-lg text-gray-700">
-            Topilgan o'quv rejalar ro'yxati:{" "}
-            <span className="text-2xl font-bold text-blue-600">
-              {filteredGroups.length} ta
-            </span>
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold text-gray-800">
+            O'quv Rejalar Ro'yxati
+          </h1>
+          <p className="mt-2 text-gray-600">
+            Barcha fanlar va ularning ma'lumotlari
           </p>
         </div>
+
+        <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+          {/* Year Selector and Update Button - Combined into the other half */}
+          <div className="rounded-lg bg-white p-4 shadow-md md:p-6">
+            <div className="flex flex-col space-y-4 md:flex-row md:space-x-4 md:space-y-0">
+              {/* O'quv yili tanlovi - Takes half width on desktop */}
+              <div className="w-full md:w-1/2">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  O'quv yili
+                </label>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                >
+                  {yearOptions.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Yangilash tugmasi - Takes half width on desktop */}
+              <div className="flex w-full items-center md:w-1/2">
+                <div className="flex w-full items-center space-x-3 rounded-lg bg-green-50 px-4 py-3 md:space-x-4">
+                  <div className="rounded-full bg-green-100 p-2">
+                    <svg
+                      className="h-5 w-5 text-green-600"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-600">
+                      Ma'lumotlarni yangilash
+                    </p>
+                    <button
+                      onClick={handleUpdateCurriculums}
+                      disabled={isUpdating}
+                      className={`mt-1 w-full whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-white transition-all md:px-4 ${
+                        isUpdating
+                          ? "cursor-not-allowed bg-gray-400"
+                          : "bg-green-600 hover:bg-green-700 hover:shadow-md"
+                      } focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
+                    >
+                      {isUpdating ? (
+                        <>
+                          <svg
+                            className="mr-2 inline h-4 w-4 animate-spin text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Yangilanmoqda...
+                        </>
+                      ) : (
+                        "Yangilash"
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Stats Cards - Combined into one half */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Jami Fanlar card */}
+            <div className="rounded-lg bg-white p-4 shadow transition-all hover:shadow-md">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">
+                    Jami Fanlar
+                  </p>
+                  <p className="mt-1 text-2xl font-semibold text-blue-600">
+                    {totalSubjects}
+                  </p>
+                </div>
+                <div className="rounded-full bg-blue-100 p-3">
+                  <svg
+                    className="h-6 w-6 text-blue-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Jami Sahifalar card */}
+            <div className="rounded-lg bg-white p-4 shadow transition-all hover:shadow-md">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">
+                    Jami Sahifalar
+                  </p>
+                  <p className="mt-1 text-2xl font-semibold text-purple-600">
+                    {totalPages}
+                  </p>
+                </div>
+                <div className="rounded-full bg-purple-100 p-3">
+                  <svg
+                    className="h-6 w-6 text-purple-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Rest of your component remains the same */}
+        {/* Results Count */}
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-700">
+              <span className="font-medium">{curriculums.length}</span> ta
+              natija topildi
+            </p>
+          </div>
+        </div>
+
+        {/* Table Section */}
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <div className="border-t-transparent h-12 w-12 animate-spin rounded-full border-4 border-blue-500"></div>
+          </div>
+        ) : curriculums.length > 0 ? (
+          <div className="overflow-hidden rounded-lg shadow">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                    >
+                      Fan kodi
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                    >
+                      Fan nomi
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                    >
+                      Bo'lim
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                    >
+                      Kredit
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                    >
+                      Akademik yuk
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                    >
+                      Nazorat turlari
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                    >
+                      Holati
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {curriculums.map((curriculum) => (
+                    <tr key={curriculum.id} className="hover:bg-gray-50">
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          {curriculum.subject?.code || "N/A"}
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          {curriculum.subject?.name || "N/A"}
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <div className="text-sm text-gray-500">
+                          {curriculum.departments?.[0]?.name || "N/A"}
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <div className="text-sm text-gray-500">
+                          {curriculum.credit || "N/A"}
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <div className="text-sm text-gray-500">
+                          {curriculum.totalAcload || "N/A"}
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <div className="flex flex-wrap gap-1">
+                          {curriculum.subjectExamTypes?.map((exam, index) => (
+                            <span
+                              key={index}
+                              className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800"
+                            >
+                              {exam.examType} ({exam.max_ball})
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            curriculum.active
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {curriculum.active ? "Faol" : "Nofaol"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+              <div className="flex flex-1 justify-between sm:hidden">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 0}
+                  className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Oldingi
+                </button>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage >= totalPages - 1}
+                  className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Keyingi
+                </button>
+              </div>
+              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-gray-700">
+                    Ko'rsatilmoqda{" "}
+                    <span className="font-medium">{currentPage * 20 + 1}</span>{" "}
+                    dan{" "}
+                    <span className="font-medium">
+                      {(currentPage + 1) * 20}
+                    </span>{" "}
+                    gacha <span className="font-medium">{totalPages * 20}</span>{" "}
+                    dan
+                  </p>
+                </div>
+                <div>
+                  <nav
+                    className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                    aria-label="Pagination"
+                  >
+                    <button
+                      onClick={() => handlePageChange(0)}
+                      disabled={currentPage === 0}
+                      className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"
+                    >
+                      <span className="sr-only">Boshiga</span>
+                      <svg
+                        className="h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 0}
+                      className="relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"
+                    >
+                      Oldingi
+                    </button>
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i;
+                      } else if (currentPage < 3) {
+                        pageNum = i;
+                      } else if (currentPage > totalPages - 4) {
+                        pageNum = totalPages - 5 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => handlePageChange(pageNum)}
+                          className={`relative inline-flex items-center border px-4 py-2 text-sm font-medium focus:z-20 ${
+                            currentPage === pageNum
+                              ? "z-10 border-blue-500 bg-blue-50 text-blue-600"
+                              : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                          }`}
+                        >
+                          {pageNum + 1}
+                        </button>
+                      );
+                    })}
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage >= totalPages - 1}
+                      className="relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"
+                    >
+                      Keyingi
+                    </button>
+                    <button
+                      onClick={() => handlePageChange(totalPages - 1)}
+                      disabled={currentPage >= totalPages - 1}
+                      className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"
+                    >
+                      <span className="sr-only">Oxiriga</span>
+                      <svg
+                        className="h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-lg bg-white p-12 text-center shadow">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <h3 className="mt-2 text-lg font-medium text-gray-900">
+              O'quv rejalar ro'yxati topilmadi!
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Hozircha hech qanday o'quv rejasi mavjud emas. Yangilash tugmasini
+              bosib sinab ko'ring.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-export default Categories;
+export default CurriculumTable;
