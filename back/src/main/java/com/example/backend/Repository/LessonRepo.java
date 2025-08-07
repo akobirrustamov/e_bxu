@@ -13,6 +13,6 @@ public interface LessonRepo extends JpaRepository<Lesson, UUID> {
     Optional<Lesson> findByHemisId(Integer hemisId);
 
 
-    @Query(value = "select * from lessons where curriculumId=:curriculumId", nativeQuery = true)
-    List<Lesson> findByIdCurriculm(Integer curriculumId);
+    @Query(value = "select * from lessons where curriculum_id=:curriculumId", nativeQuery = true)
+    List<Lesson> findByIdCurriculm(UUID curriculumId);
 }

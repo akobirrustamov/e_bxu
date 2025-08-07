@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,8 +29,14 @@ public class LessonController {
     private final TokenHemisRepo tokenHemisRepo;
     private final com.example.backend.Service.ExternalApiService externalApiService;
     @GetMapping("/update/{curriculumId}")
-    public HttpEntity<?> updateLesson(@PathVariable Integer curriculumId) {
+    public HttpEntity<?> updateLesson(@PathVariable UUID curriculumId) {
 
+
+        Optional<Curriculum> byId = curriculumRepo.findById(curriculumId);
+        if (byId.isPresent()) {
+          return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+        Curriculum curriculum = byId.get();
 
         System.out.println("\u25B6\uFE0F Starting lesson update...");
 
@@ -46,7 +53,7 @@ public class LessonController {
                     "v1/data/curriculum-subject-topic-list",
                     HttpMethod.GET,
                     Map.of("Authorization", "Bearer " + token),
-                    Map.of("curriculum", curriculumId),
+                    Map.of("curriculum", curriculum.getHemisId()),
                     null
             );
 
@@ -65,7 +72,7 @@ public class LessonController {
                 return ResponseEntity.ok("No lessons found for curriculum ID: " + curriculumId);
             }
 
-            Optional<Curriculum> optionalCurriculum = curriculumRepo.findByHemisId(curriculumId);
+            Optional<Curriculum> optionalCurriculum = curriculumRepo.findByHemisId(curriculum.getHemisId());
             if (optionalCurriculum.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("❌ Curriculum not found for ID: " + curriculumId);
             }
@@ -119,7 +126,7 @@ public class LessonController {
 
 
     @GetMapping("/curriculumId")
-    public HttpEntity<?> getCurriculum(@RequestParam Integer curriculumId) {
+    public HttpEntity<?> getCurriculum(@RequestParam UUID curriculumId) {
         List<Lesson> lessons = lessonRepo.findByIdCurriculm(curriculumId);
         return ResponseEntity.ok(lessons);
     }
