@@ -51,5 +51,14 @@ public interface CurriculumRepo extends JpaRepository<Curriculum,Integer> {
             @Param("dayTo") Long dayTo,
             Pageable pageable
     );
-
+    @Query(
+            value = "SELECT * FROM curriculum WHERE created_at BETWEEN :dayFrom AND :dayTo",
+            countQuery = "SELECT COUNT(*) FROM curriculum WHERE created_at BETWEEN :dayFrom AND :dayTo",
+            nativeQuery = true
+    )
+    Page<Curriculum> findByCreatedAtBetween(
+            @Param("dayFrom") Long dayFrom,
+            @Param("dayTo") Long dayTo,
+            Pageable pageable
+    );
 }
