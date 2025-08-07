@@ -5,39 +5,47 @@ import Rodal from "rodal";
 import "rodal/lib/rodal.css";
 import { useNavigate } from "react-router-dom";
 
-function Groups() {
+function Faculty() {
   const navigate = useNavigate();
-  const [groups, setGroups] = useState([]);
+  const [faculty, setFaculty] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [departments, setDepartments] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState("Sirtqi bo'lim");
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Обновить группы с сервера
-  const handleUpdateGroups = async () => {
+  const handleUpdateFaculty = async () => {
     try {
       setIsUpdating(true);
-      await getGroupsFromHemis(); // просто инициирует обновление
-      await getGroups(); // получает свежие группы
-      // const newResponse = await ApiCall(`/api/v1/groups/1`, "GET");
+      await getFacultyFromHemis(); // просто инициирует обновление
+      await getFaculty(); // получает свежие группы
+      // const newResponse = await ApiCall(`/api/v1/faculty/1`, "GET");
       // console.log(newResponse.data);
     } catch (error) {
       console.error("Xatolik (yangilash):", error);
-      alert("Guruhlar yangilanmadi. Iltimos, qayta urinib ko‘ring.");
+      alert("Fakultetlar yangilanmadi. Iltimos, qayta urinib ko‘ring.");
     } finally {
       setIsUpdating(false);
     }
   };
 
   // Получить список групп
-  const getGroups = async () => {
+  const getFaculty = async () => {
     try {
-      const response = await ApiCall(`/api/v1/groups`, "GET");
-      const allGroups = response.data || [];
-      setGroups(allGroups);
+      const response = await ApiCall(`/api/v1/departments`, "GET");
+      console.log("departments", response);
+
+      const raw = response.data;
+      const allFaculty = Array.isArray(raw)
+        ? raw
+        : Array.isArray(raw?.data)
+        ? raw.data
+        : [];
+
+      setFaculty(allFaculty);
 
       const uniqueDepartments = [
-        ...new Set(allGroups.map((group) => group.departmentName)),
+        ...new Set(allFaculty.map((group) => group.structureType)),
       ];
       setDepartments(uniqueDepartments);
 
@@ -48,14 +56,14 @@ function Groups() {
         setSelectedDepartment(uniqueDepartments[0]);
       }
     } catch (error) {
-      console.error("Xatolik (guruhlar):", error);
+      console.error("Xatolik (Fakultetlar):", error);
     }
   };
 
   // Отправить запрос на обновление (не возвращает группы)
-  const getGroupsFromHemis = async () => {
+  const getFacultyFromHemis = async () => {
     try {
-      const response = await ApiCall(`/api/v1/groups/update`, "GET");
+      const response = await ApiCall(`/api/v1/departments/update`, "GET");
       console.log("update", response);
     } catch (error) {
       console.error("Xatolik (yangilash):", error);
@@ -63,26 +71,28 @@ function Groups() {
   };
 
   useEffect(() => {
-    getGroups();
+    getFaculty();
   }, []);
 
   // Фильтрация по названию группы
   // Фильтрация по названию группы и выбранному отделу
-  const filteredGroups = groups
-    .filter((group) => group.departmentName === selectedDepartment)
-    .filter((group) =>
-      group?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  const filteredFaculty = Array.isArray(faculty)
+    ? faculty
+        .filter((faculty) => faculty?.structureType === selectedDepartment)
+        .filter((faculty) =>
+          faculty?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+    : [];
 
-  const handleGroupClick = (groupId) => {
-    navigate(`/superadmin/groups/${groupId}`);
+  const handleGroupClick = (facultyId) => {
+    navigate(`/superadmin/departments/${facultyId}`);
   };
 
   return (
     <div className="min-h-screen p-4">
       <div className="mx-auto max-w-7xl">
         <h1 className="text-center text-4xl font-bold text-blue-700">
-          Guruhlar ro'yxati
+          Fakultetlar ro'yxati
         </h1>
 
         {/* Stats Section */}
@@ -95,9 +105,11 @@ function Groups() {
               </span>
             </div>
             <div className="flex items-center gap-2 rounded-lg px-6 py-3">
-              <span className="font-medium text-gray-700">Jami guruhlar:</span>
+              <span className="font-medium text-gray-700">
+                Jami Fakultetlar:
+              </span>
               <span className="text-xl font-semibold text-blue-600">
-                {groups.length} ta
+                {faculty.length} ta
               </span>
             </div>
           </div>
@@ -176,7 +188,7 @@ function Groups() {
             </div>
             {/* Update Button */}
             <button
-              onClick={handleUpdateGroups}
+              onClick={handleUpdateFaculty}
               disabled={isUpdating}
               className={`flex items-center gap-2 rounded-lg px-6 py-3 font-medium text-white transition-all ${
                 isUpdating
@@ -222,29 +234,29 @@ function Groups() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  Guruhlarni yangilash
+                  Fakultetlarni yangilash
                 </>
               )}
             </button>
           </div>
         </div>
 
-        {/* Groups Cards */}
+        {/* faculty Cards */}
         <div className="mb-8">
-          {filteredGroups.length > 0 ? (
+          {filteredFaculty.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredGroups.map((group) => (
+              {filteredFaculty.map((faculty) => (
                 <div
-                  key={group.id}
+                  key={faculty.id}
                   className="group relative transform cursor-pointer overflow-hidden rounded-xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-                  onClick={() => handleGroupClick(group.id)}
+                  onClick={() => handleGroupClick(faculty.id)}
                 >
                   <div className="p-6">
                     <h2 className="mb-2 text-xl font-bold text-gray-800 transition-colors group-hover:text-white">
-                      {group?.name}
+                      {faculty?.name}
                     </h2>
                     <p className="text-gray-600 transition-colors group-hover:text-blue-100">
-                      <b>{group?.specialtyName || "Noma'lum"}</b>
+                      <b>Fakultet kodi: </b>{faculty?.code || "Noma'lum"}
                     </p>
                   </div>
                   <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-500 to-blue-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
@@ -267,12 +279,12 @@ function Groups() {
                 />
               </svg>
               <h3 className="mt-2 text-lg font-medium text-gray-900">
-                Guruhlar topilmadi
+                Fakultetlar topilmadi
               </h3>
               <p className="mx-auto mt-1 max-w-md text-gray-500">
                 {searchTerm || selectedDepartment !== "Sirtqi bo'lim"
-                  ? "Qidiruvga mos yoki tanlangan bo'limdagi guruhlar mavjud emas"
-                  : "Guruhlar ro'yxati hozircha bo'sh"}
+                  ? "Qidiruvga mos yoki tanlangan bo'limdagi Fakultetlar mavjud emas"
+                  : "Fakultetlar ro'yxati hozircha bo'sh"}
               </p>
             </div>
           )}
@@ -281,9 +293,9 @@ function Groups() {
         {/* Results Count */}
         <div className="p-4 text-center">
           <p className="text-lg text-gray-700">
-            Topilgan guruhlar:{" "}
+            Topilgan Fakultetlar:{" "}
             <span className="text-2xl font-bold text-blue-600">
-              {filteredGroups.length} ta
+              {filteredFaculty.length} ta
             </span>
           </p>
         </div>
@@ -292,4 +304,4 @@ function Groups() {
   );
 }
 
-export default Groups;
+export default Faculty;

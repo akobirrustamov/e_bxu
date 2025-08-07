@@ -83,7 +83,14 @@ public class SubjectController {
                             .created(LocalDateTime.now())
                             .build();
 
-                    subjectRepo.save(subject);
+
+                    try {
+                        subjectRepo.save(subject);
+
+                    }catch (Exception e){
+                        System.out.printf("subject save error: %s\n", e.getMessage());
+                    }
+
                     savedCount++;
                 }
 
