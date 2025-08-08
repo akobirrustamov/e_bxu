@@ -22,9 +22,6 @@ public class StudentController {
     private final StudentRepo studentRepo;
     private static final Logger logger = LoggerFactory.getLogger(StudentController.class);
 
-
-
-
     @PostMapping("/login")
     public HttpEntity<?> login(@RequestBody StudentLoginDTO studentLoginDTO) {
         System.out.println(studentLoginDTO);
@@ -194,6 +191,7 @@ public class StudentController {
             return new ResponseEntity<>("Error occurred while fetching student data", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
 
 }
