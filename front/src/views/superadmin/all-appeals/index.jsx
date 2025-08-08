@@ -34,10 +34,7 @@ const Duty = () => {
   const updateStudent = async () => {
     setUpdating(true);
     try {
-      const updateResponse = await ApiCall(
-        `/api/v1/groups/update-students/${groupId}`,
-        "GET"
-      );
+      await ApiCall(`/api/v1/groups/update-students/${groupId}`, "GET");
       // await fetchStudents();
     } catch (err) {
       console.error("Xatolik:", err);
@@ -56,7 +53,7 @@ const Duty = () => {
     <div className="mx-auto max-w-7xl p-6">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold text-blue-600 sm:text-3xl">
-          Guruh talabalari ro'yxati
+          {students[0]?.groupName} Guruh talabalari ro'yxati
         </h1>
         <button
           onClick={updateStudent}
@@ -112,13 +109,16 @@ const Duty = () => {
                     #
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Ismi
+                    Ismi Familiyasi
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Familiyasi
+                    Talaba ID
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Telefon
+                    Semestr
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    GPA
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Rasm
@@ -132,16 +132,19 @@ const Duty = () => {
                       {index + 1}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                      {student.first_name || "-"}
+                      {student?.fullName || "-"}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                      {student.second_name || "-"}
+                      {student?.studentIdNumber || "-"}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {student.phone || "-"}
+                      {student?.semester - 10 || "-"}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {student.image ? (
+                      {student?.avgGpa || "-"}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {student?.image ? (
                         <img
                           src={student.image}
                           alt={`${student.first_name} ${student.second_name}`}

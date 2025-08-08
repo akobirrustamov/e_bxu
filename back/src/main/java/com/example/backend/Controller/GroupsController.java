@@ -145,7 +145,6 @@ public class GroupsController {
 
     @GetMapping("/students/{groupId}")
     public ResponseEntity<?> getStudentsByGroupId(@PathVariable UUID groupId) {
-
         List<Student> students = studentRepo.findAllByGroupId(groupId);
         return ResponseEntity.ok(students);
     }
