@@ -19,4 +19,8 @@ public interface StudentRepo extends JpaRepository<Student, UUID> {
 
     @Query(value = "select * from students where hemis_id=:hemisId", nativeQuery = true)
     Optional<Student> findByHemisId(Integer hemisId);
+
+
+    @Query(value = "select * from students where group_id=:groupId", nativeQuery = true)
+    List<Student> findAllByGroupId(UUID groupId);
 }
