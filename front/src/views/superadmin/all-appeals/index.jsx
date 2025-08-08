@@ -18,8 +18,6 @@ const Duty = () => {
         `/api/v1/groups/students/${groupId}`,
         "GET"
       );
-      console.log(response);
-
       if (response && Array.isArray(response.data)) {
         setStudents(response.data);
       } else {
@@ -129,10 +127,10 @@ const Duty = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    #
+                    №
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Ismi Familiyasi
+                    FISH
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Talaba ID
@@ -161,17 +159,17 @@ const Duty = () => {
                       {student?.studentIdNumber || "-"}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {student?.semester - 10 || "-"}
+                      {student?.semesterName || "-"}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {student?.avgGpa || "-"}
+                      {student?.avgGpa || "0"}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                       {student?.image ? (
                         <img
                           src={student.image}
                           alt={`${student.first_name} ${student.second_name}`}
-                          className="h-10 w-10 rounded-full object-cover"
+                          className="h-10 w-10 rounded-full border-2 border-blue-700 object-cover"
                           onError={(e) => {
                             e.target.onerror = null;
                             e.target.src = "https://via.placeholder.com/40";

@@ -21,7 +21,7 @@ public class Specialty {
     @Column(unique = true)
     private Integer hemisId;
     private String name;
-    private Integer code;
+    private String code;
     private LocalDateTime created;
     @ManyToOne
     private Department department;
