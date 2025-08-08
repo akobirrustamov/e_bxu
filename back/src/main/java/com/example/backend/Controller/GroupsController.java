@@ -158,7 +158,7 @@ public class GroupsController {
         }
 
         Groups group = groupOptional.get();
-        System.out.print(group);
+
         List<TokenHemis> all = tokenHemisRepo.findAll();
         if (all.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("❌ Token not found");
@@ -167,6 +167,7 @@ public class GroupsController {
         String token = all.get(all.size() - 1).getName();
         Map<String, String> headers = Map.of("Authorization", "Bearer " + token);
 
+        System.out.println(group);
         try {
             ResponseEntity<?> response = externalApiService.sendRequest(
                     "v1/data/student-list",
@@ -176,6 +177,7 @@ public class GroupsController {
                     null
             );
 
+            System.out.println(response.getBody());
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() instanceof Map) {
                 Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
                 if (!Boolean.TRUE.equals(responseBody.get("success"))) {

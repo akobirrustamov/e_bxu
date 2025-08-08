@@ -34,7 +34,8 @@ public class CurriculumSubject {
     @ManyToMany
     private List<Department> departments;
 
-    private Integer _curriculum;
+    @ManyToOne
+    private Curriculum curriculum;
     private Integer totalAcload;
     private Integer resourceCount;
     private String in_group;
