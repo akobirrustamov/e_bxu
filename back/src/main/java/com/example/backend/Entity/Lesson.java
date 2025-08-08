@@ -25,7 +25,7 @@ public class Lesson {
     private Integer topic_load;
     private Integer position;
     @ManyToOne
-    private Curriculum curriculum;
+    private CurriculumSubject curriculumSubject;
     private Boolean active;
     private Integer department;
     private Integer semester;

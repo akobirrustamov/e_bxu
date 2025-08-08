@@ -1,69 +1,12 @@
 package com.example.backend.Repository;
 
 import com.example.backend.Entity.Curriculum;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-public interface CurriculumRepo extends JpaRepository<Curriculum, UUID> {
-
-    @Query(value = "select * from curriculum where hemis_id=:curriculumHemisId", nativeQuery = true)
-    Optional<Curriculum> findByHemisId(Integer curriculumHemisId);
-    @Query(
-            value = """
-            SELECT c.* FROM curriculum c
-            JOIN subject s ON c.subject_id = s.id
-            WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :subjectName, '%'))
-            """,
-            countQuery = """
-            SELECT COUNT(*) FROM curriculum c
-            JOIN subject s ON c.subject_id = s.id
-            WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :subjectName, '%'))
-            """,
-            nativeQuery = true
-    )
-    Page<Curriculum> findBySubjectNameNative(@Param("subjectName") String subjectName, Pageable pageable);
-
-
-    @Query(
-            value = """
-        SELECT c.* FROM curriculum c
-        JOIN subject s ON c.subject_id = s.id
-        WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', :subjectName, '%'))
-        AND c.created_at BETWEEN :dayFrom AND :dayTo
-        """,
-            countQuery = """
-        SELECT COUNT(*) FROM curriculum c
-        JOIN subject s ON c.subject_id = s.id
-        WHERE (LOWER(s.name) LIKE LOWER(CONCAT('%', :subjectName, '%')) or LOWER(s.code) LIKE LOWER(CONCAT('%', :subjectName, '%')))
-        AND c.created_at BETWEEN :dayFrom AND :dayTo
-        """,
-            nativeQuery = true
-    )
-    Page<Curriculum> findBySubjectNameAndDateBetweenNative(
-            @Param("subjectName") String subjectName,
-            @Param("dayFrom") Long dayFrom,
-            @Param("dayTo") Long dayTo,
-            Pageable pageable
-    );
-    @Query(
-            value = "SELECT * FROM curriculum WHERE created_at BETWEEN :dayFrom AND :dayTo",
-            countQuery = "SELECT COUNT(*) FROM curriculum WHERE created_at BETWEEN :dayFrom AND :dayTo",
-            nativeQuery = true
-    )
-    Page<Curriculum> findByCreatedAtBetween(
-            @Param("dayFrom") Long dayFrom,
-            @Param("dayTo") Long dayTo,
-            Pageable pageable
-    );
-
-    @Query(value = "select * from curriculum where active and at_semester", nativeQuery = true)
-    List<Curriculum> findAllActive();
+public interface CurriculumRepo extends JpaRepository<Curriculum,Integer> {
+    @Query(value = "select * from curriculum where hemis_id=:hemisId", nativeQuery = true)
+    Optional<Curriculum> findByHemisId(Integer hemisId);
 }
