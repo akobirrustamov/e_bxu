@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import ApiCall from "../../../config";
 import { useNavigate } from "react-router-dom";
+import LoadingOverlay from "components/loading/LoadingOverlay";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function CurriculumTable() {
   const navigate = useNavigate();
   const [curriculums, setCurriculums] = useState([]);
   const [isUpdating2, setIsUpdating2] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedYear, setSelectedYear] = useState("2024-2025");
@@ -49,13 +52,27 @@ function CurriculumTable() {
   const updateCurriculumsFromHemis = async () => {
     try {
       setIsUpdating2(true);
-      await ApiCall(`/api/v1/curriculum/update`, "GET");
+      await getCurriculumFromHemis();
       // Refresh data after update
       await fetchCurriculums(currentPage);
     } catch (error) {
       console.error("Update from HEMIS error:", error);
     } finally {
       setIsUpdating2(false);
+    }
+  };
+  const getCurriculumFromHemis = async () => {
+    try {
+      const response = await ApiCall(`/api/v1/curriculum/update`, "GET");
+      console.log("update", response);
+      if (response?.error) {
+        toast.error("Avtorizatsiya xatosi: Token topilmadi yoki noto‘g‘ri.");
+        console.log(response.data);
+      } else {
+        toast.success("Muvaffaqiyatli yangilandi");
+      }
+    } catch (error) {
+      console.error("Xatolik (yangilash):", error);
     }
   };
 
@@ -82,6 +99,7 @@ function CurriculumTable() {
 
   return (
     <div className="min-h-screen p-4">
+      <ToastContainer />
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-8 text-center">
@@ -301,10 +319,8 @@ function CurriculumTable() {
         </div>
 
         {/* Table Section */}
-        {isLoading ? (
-          <div className="flex justify-center py-12">
-            <div className="border-t-transparent h-12 w-12 animate-spin rounded-full border-4 border-blue-500"></div>
-          </div>
+        {isLoading || isUpdating2 ? (
+          <LoadingOverlay text="Yangilanmoqda..." />
         ) : curriculums.length > 0 ? (
           <div className="overflow-hidden rounded-lg shadow">
             <div className="overflow-hidden rounded-lg border border-gray-200">

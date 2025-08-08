@@ -6,6 +6,7 @@ import "rodal/lib/rodal.css";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import LoadingOverlay from "../../../components/loading/LoadingOverlay";
 
 function Groups() {
   const navigate = useNavigate();
@@ -60,11 +61,10 @@ function Groups() {
       const response = await ApiCall(`/api/v1/groups/update`, "GET");
       console.log("update", response);
       if (response?.error) {
-        toast.error("❌ Avtorizatsiya xatosi: Token topilmadi yoki noto‘g‘ri.");
+        toast.error("Avtorizatsiya xatosi: Token topilmadi yoki noto‘g‘ri.");
         console.log(response.data);
-        
       } else {
-        toast.error("❌ Guruhlarni yangilashda xatolik yuz berdi.");
+        toast.success("Muvaffaqiyatli yangilandi");
       }
     } catch (error) {
       console.error("Xatolik (yangilash):", error);
@@ -240,7 +240,9 @@ function Groups() {
 
         {/* Groups Cards */}
         <div className="mb-8">
-          {filteredGroups.length > 0 ? (
+          {isUpdating ? (
+            <LoadingOverlay text="Yangilanmoqda..." />
+          ) : filteredGroups.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredGroups.map((group) => (
                 <div
