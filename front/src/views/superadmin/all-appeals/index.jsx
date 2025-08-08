@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ApiCall from "../../../config";
 import { useParams } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import LoadingOverlay from "../../../components/loading/LoadingOverlay";
 
 const Duty = () => {
   const { groupId } = useParams();
@@ -34,12 +37,29 @@ const Duty = () => {
   const updateStudent = async () => {
     setUpdating(true);
     try {
-      await ApiCall(`/api/v1/groups/update-students/${groupId}`, "GET");
-      // await fetchStudents();
+      await getStudentFromHemis();
+      await fetchStudents();
     } catch (err) {
       console.error("Xatolik:", err);
     } finally {
       setUpdating(false);
+    }
+  };
+  const getStudentFromHemis = async () => {
+    try {
+      const response = await ApiCall(
+        `/api/v1/groups/update-students/${groupId}`,
+        "GET"
+      );
+      console.log("update", response);
+      if (response?.error) {
+        toast.error("Avtorizatsiya xatosi: Token topilmadi yoki noto‘g‘ri.");
+        console.log(response.data);
+      } else {
+        toast.success("Muvaffaqiyatli yangilandi");
+      }
+    } catch (error) {
+      console.error("Xatolik (yangilash):", error);
     }
   };
 
@@ -51,6 +71,7 @@ const Duty = () => {
 
   return (
     <div className="mx-auto max-w-7xl p-6">
+      <ToastContainer />
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold text-blue-600 sm:text-3xl">
           {students[0]?.groupName} Guruh talabalari ro'yxati
@@ -88,12 +109,14 @@ const Duty = () => {
           )}
         </button>
       </div>
+      {(loading || updating) && (
+        <>
+          {console.log("Rendering loading overlay")}
+          <LoadingOverlay text="Yuklanmoqda..." />
+        </>
+      )}
 
-      {loading ? (
-        <div className="flex justify-center py-8">
-          <div className="border-t-transparent h-8 w-8 animate-spin rounded-full border-4 border-blue-500"></div>
-        </div>
-      ) : students.length === 0 ? (
+      {!loading && students.length === 0 ? (
         <div className="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
           <p className="text-gray-500">
             Talabalar ro'yxati bo'sh. Yangilash tugmasini bosing.
