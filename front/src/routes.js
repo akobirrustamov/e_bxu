@@ -42,6 +42,8 @@ import MainDashboardSuper from "views/superadmin/default";
 import SuperadminAdmins from "views/superadmin/tables";
 import SuperadminGroups from "views/superadmin/subject";
 import SuperAdminFaculty from "views/superadmin/faculty";
+import SuperAdminSpeciality from "views/superadmin/speciality";
+import SuperAdminCurriculum from "views/superadmin/curriculum";
 import SuperAdminCategories from "views/superadmin/categories/index"
 import SuperAdminCategoriesLesson from "views/superadmin/categories/Lessons"
 import SuperAdminSubCategories from "views/superadmin/subCategories"
@@ -54,6 +56,8 @@ import SignIn from "views/auth/SignIn";
 
 // Icon Imports
 import {
+  MdBorderColor,
+  MdFolderSpecial,
   MdOutlinePersonAddAlt,
   MdHome,
   MdPerson,
@@ -354,11 +358,25 @@ const routes = [
     icon: <MdAutoAwesomeMotion className="h-6 w-6" />,
     component: <SuperAdminFaculty />,
   },
-
   {
-    name: "O'quv rejalar ro'yxati",
+    name: "Mutaxasislik",
+    layout: "/superadmin",
+    path: "speciality",
+    icon: <MdFolderSpecial className="h-6 w-6" />,
+    component: <SuperAdminSpeciality />,
+  },
+  {
+    name: "O'quv reja",
     layout: "/superadmin",
     path: "curriculum",
+    icon: <MdBorderColor className="h-6 w-6" />,
+    component: <SuperAdminCurriculum />,
+  },
+
+  {
+    name: "O'quv reja fanlari",
+    layout: "/superadmin",
+    path: "curriculum-subject",
     icon: <MdArticle className="h-6 w-6" />,
     component: <SuperAdminCategories />,
   },
