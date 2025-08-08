@@ -56,6 +56,7 @@ public class SpecialtyController {
                         null
                 );
 
+                System.out.println(response.getBody());
                 if (response.getStatusCode().is2xxSuccessful() && response.getBody() instanceof Map) {
                     Map<String, Object> body = (Map<String, Object>) response.getBody();
                     Map<String, Object> data = (Map<String, Object>) body.get("data");
@@ -64,32 +65,34 @@ public class SpecialtyController {
 
                     totalPages = (Integer) pagination.get("pageCount");
                     currentPage++;
-                    System.out.println("Page " + currentPage + " of " + totalPages);
+
                     for (Map<String, Object> item : items) {
                         Integer hemisId = (Integer) item.get("id");
                         String name = (String) item.get("name");
                         String code = (String) item.get("code");
 
-                        Map<String, Object> departmentMap = (Map<String, Object>) item.get("department");
-                        Integer deptHemisId = (Integer) departmentMap.get("id");
-                        String deptName = (String) departmentMap.get("name");
-                        String deptCode = (String) departmentMap.get("code");
+                        Department department = null;
+                        if (item.get("department") instanceof Map<?, ?> departmentMap) {
+                            Integer deptHemisId = (Integer) departmentMap.get("id");
+                            String deptName = (String) departmentMap.get("name");
+                            String deptCode = (String) departmentMap.get("code");
 
-                        Department department = departmentRepo.findByHemisId(deptHemisId)
-                                .orElseGet(() -> departmentRepo.save(
-                                        Department.builder()
-                                                .hemisId(deptHemisId)
-                                                .name(deptName)
-                                                .code(deptCode)
-                                                .build()
-                                ));
+                            department = departmentRepo.findByHemisId(deptHemisId)
+                                    .orElseGet(() -> departmentRepo.save(
+                                            Department.builder()
+                                                    .hemisId(deptHemisId)
+                                                    .name(deptName)
+                                                    .code(deptCode)
+                                                    .build()
+                                    ));
+                        }
 
                         Optional<Specialty> existing = specialtyRepo.findByHemisId(hemisId);
                         if (existing.isEmpty()) {
                             Specialty specialty = Specialty.builder()
                                     .hemisId(hemisId)
                                     .name(name)
-                                    .code(Integer.valueOf(code))
+                                    .code(code)
                                     .department(department)
                                     .created(LocalDateTime.now())
                                     .build();

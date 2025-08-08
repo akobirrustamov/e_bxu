@@ -2,26 +2,20 @@ package com.example.backend.Controller;
 
 import com.example.backend.Entity.Curriculum;
 import com.example.backend.Entity.Specialty;
+import com.example.backend.Entity.TokenHemis;
 import com.example.backend.Repository.CurriculumRepo;
 import com.example.backend.Repository.SpecialtyRepo;
+import com.example.backend.Repository.TokenHemisRepo;
+import com.example.backend.Service.ExternalApiService;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/curriculum")
@@ -30,64 +24,93 @@ public class CurriculumController {
 
     private final CurriculumRepo curriculumRepo;
     private final SpecialtyRepo specialtyRepo;
+    private final ExternalApiService externalApiService;
+    private final TokenHemisRepo tokenHemisRepo;
 
     @GetMapping("/update")
     public HttpEntity<?> updateCurriculum() {
+
+        System.out.println("▶️ Starting department update...");
+
+        List<TokenHemis> all = tokenHemisRepo.findAll();
+        if (all.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("❌ Token not found");
+        }
+        String token = all.get(all.size() - 1).getName();
+        System.out.println("🔑 Token: " + token);
+
+
+        int page = 1;
+        int totalPages = 1;
+        int savedCount = 0;
+
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            HttpClient client = HttpClient.newHttpClient();
-
-            int page = 1;
-            int totalPages = 1;
-            List<Curriculum> savedList = new ArrayList<>();
-
             do {
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("https://student.buxpxti.uz/rest/v1/data/curriculum-list?page=" + page))
-                        .GET()
-                        .build();
+                // Send request via ExternalApiService
+                ResponseEntity<?> response = externalApiService.sendRequest(
+                        "v1/data/curriculum-list",
+                        HttpMethod.GET,
+                        Map.of("Authorization", "Bearer " + token),
+                        Map.of("page", page, "l", "uz-UZ"),
+                        null
+                );
 
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                JsonNode root = objectMapper.readTree(response.body());
+                System.out.println(response.getBody());
+                if (!(response.getBody() instanceof Map<?, ?> bodyMap)) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("❌ Unexpected response format");
+                }
 
-                JsonNode data = root.get("data");
-                JsonNode items = data.get("items");
-                JsonNode pagination = data.get("pagination");
-                totalPages = pagination.get("pageCount").asInt();
+                // Extract data
+                Map<String, Object> data = (Map<String, Object>) bodyMap.get("data");
+                if (data == null) break;
 
-                for (JsonNode item : items) {
-                    int hemisId = item.get("id").asInt();
+                List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("items");
+                Map<String, Object> pagination = (Map<String, Object>) data.get("pagination");
+                if (pagination == null || items == null) break;
+
+                totalPages = (int) pagination.get("pageCount");
+
+                for (Map<String, Object> item : items) {
+                    Integer hemisId = (Integer) item.get("id");
                     if (curriculumRepo.findByHemisId(hemisId).isPresent()) continue;
 
-                    JsonNode specialtyNode = item.get("specialty");
-                    Integer specialtyCode = Integer.valueOf(specialtyNode.get("id").asText());
-                    Optional<Specialty> byHemisId = specialtyRepo.findByHemisId(specialtyCode);
+                    Map<String, Object> specialtyMap = (Map<String, Object>) item.get("specialty");
+                    if (specialtyMap == null) continue;
 
-                    if (byHemisId.isEmpty()) continue;
-                    Specialty specialty = byHemisId.get();
+                    Integer specialtyHemisId = (Integer) specialtyMap.get("id");
+                    Optional<Specialty> optionalSpecialty = specialtyRepo.findByHemisId(specialtyHemisId);
+                    if (optionalSpecialty.isEmpty()) continue;
+
+                    Specialty specialty = optionalSpecialty.get();
+
+                    Map<String, Object> educationYear = (Map<String, Object>) item.get("educationYear");
+                    Map<String, Object> educationType = (Map<String, Object>) item.get("educationType");
 
                     Curriculum c = Curriculum.builder()
                             .hemisId(hemisId)
                             .specialty(specialty)
-                            .educationYearCode(item.get("educationYear").get("code").asInt())
-                            .educationYearName(item.get("educationYear").get("name").asText())
-                            .educationTypeName(item.get("educationType").get("name").asText())
-                            .education_period(item.get("education_period").asInt())
-                            .semester_count(item.get("semester_count").asInt())
+                            .educationYearCode(Integer.parseInt(educationYear.get("code").toString()))
+                            .educationYearName(educationYear.get("name").toString())
+                            .educationTypeName(educationType.get("name").toString())
+                            .education_period((Integer) item.get("education_period"))
+                            .semester_count((Integer) item.get("semester_count"))
                             .created(LocalDateTime.now())
                             .build();
 
-                    savedList.add(curriculumRepo.save(c));
+                    curriculumRepo.save(c);
+                    savedCount++;
                 }
 
                 page++;
+
             } while (page <= totalPages);
 
-            return ResponseEntity.ok("✅ Saved " + savedList.size() + " new curriculum records.");
+            return ResponseEntity.ok("✅ Curriculum updated. Total saved: " + savedCount);
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("❌ Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("❌ Error occurred: " + e.getMessage());
         }
     }
 }
