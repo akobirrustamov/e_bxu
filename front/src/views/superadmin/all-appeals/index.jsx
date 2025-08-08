@@ -1,82 +1,168 @@
 import React, { useEffect, useState } from "react";
-import ApiCall from "../../../config"; // bu sizning API call helperingiz
+import ApiCall from "../../../config";
 import { useParams } from "react-router-dom";
 
 const Duty = () => {
-  const { groupId } = useParams(); // URL'dan groupId olamiz
+  const { groupId } = useParams();
   const [students, setStudents] = useState([]);
-  const [groupName, setGroupName] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [updating, setUpdating] = useState(false);
+
+  const fetchStudents = async () => {
+    setLoading(true);
+    try {
+      const response = await ApiCall(
+        `/api/v1/groups/students/${groupId}`,
+        "GET"
+      );
+      console.log(response);
+
+      if (response && Array.isArray(response.data)) {
+        setStudents(response.data);
+      } else {
+        setStudents([]);
+      }
+
+      console.log("Talabalar ro'yxati:", response.data);
+    } catch (err) {
+      console.error("Xatolik:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateStudent = async () => {
+    setUpdating(true);
+    try {
+      const updateResponse = await ApiCall(
+        `/api/v1/groups/update-students/${groupId}`,
+        "GET"
+      );
+      // await fetchStudents();
+    } catch (err) {
+      console.error("Xatolik:", err);
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        // 1. Guruh ID orqali guruh nomini olish
-        const groupResponse = await ApiCall(`/api/v1/groups/${groupId}`, "GET");
-        const name = groupResponse.data.name;
-        setGroupName(name);
-
-        // 2. Guruh nomi orqali talabalarni olish
-        const studentsResponse = await ApiCall(
-          `/api/v1/student/group/${name}`,
-          "GET"
-        );
-        setStudents(studentsResponse.data);
-      } catch (err) {
-        console.error("Xatolik:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (groupId) fetchStudents();
+    if (groupId) {
+      fetchStudents();
+    }
   }, [groupId]);
 
   return (
     <div className="mx-auto max-w-7xl p-6">
-      <h1 className="mb-6 text-center text-3xl font-bold text-blue-600">
-        {groupName
-          ? `${groupName} guruhi talabalar ro'yxati`
-          : "Yuklanmoqda..."}
-      </h1>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold text-blue-600 sm:text-3xl">
+          Guruh talabalari ro'yxati
+        </h1>
+        <button
+          onClick={updateStudent}
+          disabled={loading || updating}
+          className={`rounded-md px-4 py-2 font-medium text-white transition-colors ${
+            loading || updating
+              ? "cursor-not-allowed bg-gray-400"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
+        >
+          {loading || updating ? (
+            <span className="flex items-center gap-2">
+              <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Yuklanmoqda...
+            </span>
+          ) : (
+            "Talabalarni yangilash"
+          )}
+        </button>
+      </div>
 
       {loading ? (
-        <p className="text-center text-gray-500">Yuklanmoqda...</p>
+        <div className="flex justify-center py-8">
+          <div className="border-t-transparent h-8 w-8 animate-spin rounded-full border-4 border-blue-500"></div>
+        </div>
       ) : students.length === 0 ? (
-        <p className="text-center text-red-500">Talabalar topilmadi</p>
+        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
+          <p className="text-gray-500">
+            Talabalar ro'yxati bo'sh. Yangilash tugmasini bosing.
+          </p>
+        </div>
       ) : (
-        <table className="min-w-full overflow-hidden rounded-lg border border-gray-300">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border py-2 px-4">#</th>
-              <th className="border py-2 px-4">Ismi</th>
-              <th className="border py-2 px-4">Familiyasi</th>
-              <th className="border py-2 px-4">Telefon</th>
-              <th className="border py-2 px-4">Rasm</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((student, index) => (
-              <tr key={index} className="border-t">
-                <td className="border py-2 px-4">{index + 1}</td>
-                <td className="border py-2 px-4">{student.first_name}</td>
-                <td className="border py-2 px-4">{student.second_name}</td>
-                <td className="border py-2 px-4">{student.phone || "-"}</td>
-                <td className="border py-2 px-4">
-                  {student.image ? (
-                    <img
-                      src={student.image}
-                      alt="student"
-                      className="h-10 w-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    "—"
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    #
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Ismi
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Familiyasi
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Telefon
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    Rasm
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {students.map((student, index) => (
+                  <tr key={student.id || index} className="hover:bg-gray-50">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {index + 1}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                      {student.first_name || "-"}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                      {student.second_name || "-"}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {student.phone || "-"}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {student.image ? (
+                        <img
+                          src={student.image}
+                          alt={`${student.first_name} ${student.second_name}`}
+                          className="h-10 w-10 rounded-full object-cover"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "https://via.placeholder.com/40";
+                          }}
+                        />
+                      ) : (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-xs text-gray-500">
+                          Rasm yo'q
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </div>
   );

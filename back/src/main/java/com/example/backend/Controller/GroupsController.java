@@ -140,10 +140,6 @@ public class GroupsController {
         return null;
     }
 
-
-
-
-
     @GetMapping("/update-students/{groupId}")
     public ResponseEntity<?> updateGroupStudents(@PathVariable UUID groupId) {
         Optional<Groups> groupOptional = groupsRepo.findById(groupId);

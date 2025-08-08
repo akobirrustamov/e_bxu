@@ -90,7 +90,7 @@ function Subjects() {
 
   return (
     <div className="min-h-screen p-4">
-      <ToastContainer/>
+      <ToastContainer />
       <div className="mx-auto max-w-7xl">
         <h1 className="text-center text-4xl font-bold text-blue-700">
           Fanlar ro'yxati
@@ -133,7 +133,7 @@ function Subjects() {
                   localStorage.setItem("selectedDepartment", dept);
                 }}
               >
-                {dept}
+                {dept ? dept : "Barcha fanlar"}
               </button>
             ))}
           </div>
