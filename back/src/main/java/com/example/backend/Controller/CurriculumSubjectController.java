@@ -19,7 +19,7 @@ public class CurriculumSubjectController {
 
     private final SubjectDetailsRepo subjectDetailsRepo;
     private final SubjectRepo subjectRepo;
-    private final SubjectExamTypesRepo subjectExamTypesRepo;
+private final SubjectExamTypesRepo subjectExamTypesRepo;
     private final DepartmentRepo departmentRepo;
     private final CurriculumRepo curriculumRepo;
     private final CurriculumSubjectRepo curriculumSubjectRepo;

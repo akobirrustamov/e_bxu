@@ -48,7 +48,7 @@ function Curriculum() {
       setCurriculum(allCurriculum);
 
       const uniqueDepartments = [
-        ...new Set(allCurriculum.map((group) => group.structureType)),
+        ...new Set(allCurriculum.map((group) => group.educationYearName)),
       ];
       setDepartments(uniqueDepartments);
 
@@ -87,9 +87,11 @@ function Curriculum() {
   // Фильтрация по названию группы и выбранному отделу
   const filteredCurriculum = Array.isArray(curriculum)
     ? curriculum
-        .filter((curriculum) => curriculum?.structureType === selectedDepartment)
+        .filter(
+          (curriculum) => curriculum?.educationYearName === selectedDepartment
+        )
         .filter((curriculum) =>
-          curriculum?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+          curriculum?.specialty?.name?.toLowerCase().includes(searchTerm.toLowerCase())
         )
     : [];
 
@@ -128,7 +130,7 @@ function Curriculum() {
         {/* Department Filters */}
         <div className="p-4">
           <h2 className="mb-4 text-center text-lg font-semibold text-gray-700">
-            Bo'limlar bo'yicha filtrlash
+            O'quv yillar bo'yicha filtrlash
           </h2>
           <div className="flex flex-wrap items-center justify-center gap-3">
             {departments.map((dept, index) => (
@@ -265,11 +267,15 @@ function Curriculum() {
                 >
                   <div className="p-6">
                     <h2 className="mb-2 text-xl font-bold text-gray-800 transition-colors group-hover:text-white">
-                      {curriculum?.name}
+                      {curriculum?.specialty.name}
                     </h2>
                     <p className="text-gray-600 transition-colors group-hover:text-blue-100">
                       <b>O'quv reja kodi: </b>
-                      {curriculum?.code || "Noma'lum"}
+                      {curriculum?.specialty?.code || "Noma'lum"}
+                    </p>
+                    <p className="text-gray-600 transition-colors group-hover:text-blue-100">
+                      <b>Kafedra: </b>
+                      {curriculum?.specialty?.department?.name || "Noma'lum"}
                     </p>
                   </div>
                   <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-500 to-blue-600 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>

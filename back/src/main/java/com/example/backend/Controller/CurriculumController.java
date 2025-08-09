@@ -45,7 +45,7 @@ public class CurriculumController {
         System.out.println("🔑 Token: " + token);
 
 
-        int page = 1;
+int page = 1;
         int totalPages = 1;
         int savedCount = 0;
 

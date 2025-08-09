@@ -33,7 +33,7 @@ function CurriculumTable() {
       const day_from = Math.floor(new Date(startYear, 7, 1).getTime() / 1000); // August 1, 00:00:00
       const day_to = Math.floor(new Date(endYear, 7, 1).getTime() / 1000); // August 1, 00:00:00
       const response = await ApiCall(
-        `/api/v1/curriculum?page=${pageNumber}&size=50&day_from=${day_from}&day_to=${day_to}&subject_name=${subjectName}`,
+        `/api/v1/curriculum-subject?page=${pageNumber}&size=50&day_from=${day_from}&day_to=${day_to}&subject_name=${subjectName}`,
         "GET"
       );
       const data = response.data || {};
@@ -63,7 +63,7 @@ function CurriculumTable() {
   };
   const getCurriculumFromHemis = async () => {
     try {
-      const response = await ApiCall(`/api/v1/curriculum/update`, "GET");
+      const response = await ApiCall(`/api/v1/curriculum-subject/update`, "GET");
       console.log("update", response);
       if (response?.error) {
         toast.error("Avtorizatsiya xatosi: Token topilmadi yoki noto‘g‘ri.");
