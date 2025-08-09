@@ -27,6 +27,11 @@ public class CurriculumController {
     private final ExternalApiService externalApiService;
     private final TokenHemisRepo tokenHemisRepo;
 
+    @GetMapping
+    public HttpEntity<?> getCurriculum(){
+        List<Curriculum> all = curriculumRepo.findAll();
+        return new ResponseEntity<>(all, HttpStatus.OK);
+    }
     @GetMapping("/update")
     public HttpEntity<?> updateCurriculum() {
 

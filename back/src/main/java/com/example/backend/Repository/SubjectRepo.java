@@ -11,4 +11,5 @@ public interface SubjectRepo extends JpaRepository<Subject, UUID> {
 
     @Query(value = "select * from subjects where hemis_id=:hemisId", nativeQuery = true)
     Optional<Subject> findByHemisId(Integer hemisId);
+
 }

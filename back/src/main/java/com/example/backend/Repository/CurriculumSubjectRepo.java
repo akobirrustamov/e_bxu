@@ -15,4 +15,6 @@ import java.util.UUID;
 public interface CurriculumSubjectRepo extends JpaRepository<CurriculumSubject, UUID> {
 
 
+    @Query(value = "select * from curriculum_subject where hemis_id=:hemisId", nativeQuery = true)
+    Optional<CurriculumSubject> findByHemisId(Integer hemisId);
 }
